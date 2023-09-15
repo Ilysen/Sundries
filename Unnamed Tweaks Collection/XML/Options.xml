@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<options>
+	<option ID="UnnamedTweaksCollection_EnableRenameCarbideChefRecipes"
+		DisplayText="Enable tweak: Name Carbide Chef recipes" Category="Unnamed Tweaks Collection"
+		Type="Checkbox" Default="Yes"></option>
+	<option ID="UnnamedTweaksCollection_EnableNoBonesTrashTakeAll"
+		DisplayText="Enable tweak: Block bones and trash from Take All"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
+</options>

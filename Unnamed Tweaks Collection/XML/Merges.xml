@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<objects>
+	<object Name="BaseStone" Load="Merge">
+		<tag Name="UnnamedTweaksCollection_NoAutoPickup" />
+	</object>
+	<object Name="Bones" Load="Merge">
+		<tag Name="UnnamedTweaksCollection_NoAutoPickup" />
+	</object>
+	<object Name="Flowers" Load="Merge">
+		<tag Name="UnnamedTweaksCollection_NoAutoPickup" />
+	</object>
+	<object Name="Garbage" Load="Merge">
+		<tag Name="UnnamedTweaksCollection_NoAutoPickup" />
+	</object>
+</objects>
