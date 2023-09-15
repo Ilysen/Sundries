@@ -2,6 +2,7 @@
 using Qud.API;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using XRL;
 using XRL.Messages;
 using XRL.World;
@@ -13,60 +14,16 @@ namespace UnnamedTweaksCollection.Scripts
     {
         public static void RemoveModification(GameObject Object, IModification ModPart)
         {
-            // If we have no need to run the logic below, then we won't
             AddsRep rep = Object.GetPart<AddsRep>();
             if (rep == null)
-                goto PostDisguise;
-            // Everything below this line is extremely awful. You have been warned.
+                goto PostReputationUpdates;
 
-
-
-            // So, a bit of primer on why this code has to be existential horror:
-            // In the game's code, AddsRep is partitioned as a formatted string of faction names associated to their rep bonus.
-            // The Scaled mod has it formatted like 'Unshelled Reptiles:250:hidden', for instance;
-            // If we have a scaled fork-horned helm, it'll look like 'Antelopes:100,Goatfolk:100,Unshelled Reptiles:250:hidden'
-            // Usually, the part's code handles everything as needed through unequipping, wielding, and the like
-            // The problem here is that AddsRep is built around being permanent. It is NOT meant to have things removed from it, only added.
-            // As a result, this entire section is bespoke code to break down the string and parse what it means, and remove piecemeal parts of it as needed.
-            // We need to do this carefully so as to not malform the string and mess it up, and doing that takes a lot of work on our part.
-            // It is awful and terrible and why don't you just use a dictionary or a list of structs, AddsRep, whyyyy.
-            // But it's what we have available, so it's what we're dealing with. Paradoxically, this ensures maximum compatibility, so it's worth the pain.
             string relevantSultan = null;
             if (ModPart is ModEngraved Engraved)
                 relevantSultan = Engraved.Sultan;
             else if (ModPart is ModPainted Painted)
                 relevantSultan = Painted.Sultan;
-            if (relevantSultan != null)
-            {
-                RemoveRepBoostForFaction(rep, FindFactionForSultan(relevantSultan));
-                /*MessageQueue.AddPlayerMessage($"Searching for sultan in history: {relevantSultan}");
-                string[] entries = rep.Faction.Split(',');
-                MessageQueue.AddPlayerMessage($"AddsRep faction {rep.Faction} has been broken down into the following entries: {string.Join(" ~ ", entries)}");
-                foreach (string factionEntry in entries)
-                {
-                    string sanitizedFaction = factionEntry.Split(':')[0];
-                    MessageQueue.AddPlayerMessage($"Searching AddsRep part with faction of {sanitizedFaction}");
-                    IEnumerable<HistoricEntity> entities = HistoryAPI.GetSultans().Where(c => c.GetCurrentSnapshot().GetProperty("name") == relevantSultan);
-                    if (entities == null)
-                    {
-                        MessageQueue.AddPlayerMessage($"Found no entities with the specified name. Breaking");
-                        return;
-                    }
-                    foreach (HistoricEntity sultan in entities)
-                    {
-                        MessageQueue.AddPlayerMessage($"Checking data of historical entity {sultan.id} with name {sultan.GetCurrentSnapshot().Name}...");
-                        string cultName = Faction.getSultanFactionName(sultan.GetCurrentSnapshot().GetProperty("period", "0"));
-                        MessageQueue.AddPlayerMessage($"This cult name is {cultName}. The period is {sultan.GetCurrentSnapshot().GetProperty("period", "NOT FOUND")}.");
-                        if (cultName != null && sanitizedFaction == cultName)
-                        {
-                            RemoveRepBoostForFaction(rep, cultName);
-                            goto PostSultan;
-                        }
-                    }
-                }*/
-            }
-
-            if (ModPart is ModScaled)
+            else if (ModPart is ModScaled)
                 RemoveRepBoostForFaction(rep, "Unshelled Reptiles");
             else if (ModPart is ModFeathered)
                 RemoveRepBoostForFaction(rep, "Birds");
@@ -74,11 +31,7 @@ namespace UnnamedTweaksCollection.Scripts
                 RemoveRepBoostForFaction(rep, "Water"); // WHY IS THE WATER BARON FACTION JUST NAMED "WATER"? WHY???
             else if (ModPart is ModSnailEncrusted)
                 RemoveRepBoostForFaction(rep, "Mollusks");
-
-            // Disguise logic is less cursed than Engraved and Painted, but only just
-            // Instead of finding the historical figure, we emulate/repeat the logic that the base mod uses to find the right blueprint,
-            // and remove the relevant AddsRep part if it exists based upon that
-            /*if (ModPart is ModDisguise Disguise)
+            else if (ModPart is ModDisguise Disguise)
             {
                 MessageQueue.AddPlayerMessage($"Handling disguise logic where DisguiseBlueprint is {Disguise.DisguiseBlueprint}");
                 MessageQueue.AddPlayerMessage($"Searching AddsRep part with faction of {rep.Faction}");
@@ -86,20 +39,35 @@ namespace UnnamedTweaksCollection.Scripts
                 if (partParameter == null)
                 {
                     MessageQueue.AddPlayerMessage($"Found no matching parameter for this blueprint. Breaking");
+                    goto PostDisguise;
                 }
                 foreach (string text in partParameter.CachedCommaExpansion())
                 {
                     MessageQueue.AddPlayerMessage($"Checking this faction: {text}");
-                    if (Brain.ExtractFactionMembership(text) > 0 && rep.Faction == text)
+                    string cachedText = text;
+                    if (Brain.ExtractFactionMembership(ref cachedText) > 0)
                     {
-                        MessageQueue.AddPlayerMessage($"Faction found. Removing this part.");
-                        Object.RemovePart(rep);
-                        goto PostDisguise;
+                        Faction faction = Factions.get(cachedText);
+                        if (faction != null)
+                        {
+                            MessageQueue.AddPlayerMessage($"Faction found. Removing this part.");
+                            RemoveRepBoostForFaction(rep, cachedText);
+                        }
                     }
-
                 }
-            }*/
+                MessageQueue.AddPlayerMessage($"Disguise equipper is {Disguise.ParentObject.Equipped}");
+                if (Disguise.ParentObject.Equipped is GameObject)
+                {
+                    MethodInfo unapplyDisguise = Disguise.GetType().GetMethod("UnapplyDisguise", BindingFlags.NonPublic | BindingFlags.Instance);
+                    unapplyDisguise.Invoke(Disguise, new object[] { Disguise.ParentObject.Equipped });
+                }
+            }
             PostDisguise:
+
+            if (relevantSultan != null)
+                RemoveRepBoostForFaction(rep, FindFactionForSultan(relevantSultan));
+
+            PostReputationUpdates:
 
             MessageQueue.AddPlayerMessage($"Adjust commerce");
             Commerce commerce = Object.GetPart<Commerce>();
@@ -112,6 +80,17 @@ namespace UnnamedTweaksCollection.Scripts
 
         private static void RemoveRepBoostForFaction(AddsRep Rep, string Faction)
         {
+            // So, a bit of primer on why this code has to be existential horror:
+            // In the game's code, AddsRep is partitioned as a formatted string of faction names associated to their rep bonus.
+            // The Scaled mod has it formatted like 'Unshelled Reptiles:250:hidden', for instance;
+            // If we have a scaled and engraved fork-horned helm, it'll look like 'Antelopes,Goatfolk,Unshelled Reptiles:250:hidden,SultanCult4:60'
+            // The sultan cult rep in that last line there is random but generally looks like that. The antelopes and goatfolk stuff is handled in the item def itself.
+            // Usually, the part's code handles everything as needed through unequipping, wielding, and the like
+            // The problem here is that AddsRep is built around being permanent. It is NOT meant to have things removed from it, only added.
+            // As a result, this entire section is bespoke code to break down the string and parse what it means, and remove piecemeal parts of it as needed.
+            // We need to do this carefully so as to not malform the string and mess it up, and doing that takes a lot of work on our part.
+            // It is awful and terrible and why don't you just use a dictionary or a list of structs, AddsRep, whyyyy.
+            // But it's what we have available, so it's what we're dealing with. Paradoxically, this ensures maximum compatibility, so it's worth the pain.
             if (Faction.IsNullOrEmpty())
                 return;
             MessageQueue.AddPlayerMessage($"Attempting to remove rep from the following rep string: {Rep.Faction}, for the following faction: {Faction}");
