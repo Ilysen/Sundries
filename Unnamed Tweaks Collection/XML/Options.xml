@@ -6,4 +6,7 @@
 	<option ID="UnnamedTweaksCollection_EnableNoBonesTrashTakeAll"
 		DisplayText="Enable tweak: Block bones and trash from Take All"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
+	<option ID="UnnamedTweaksCollection_EnableNoTakeTownWater"
+		DisplayText="Enable tweak: Block auto-collection of fresh water in towns (it's just common courtesy!)"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
 </options>

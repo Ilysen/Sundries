@@ -12,4 +12,10 @@
 	<object Name="Garbage" Load="Merge">
 		<tag Name="UnnamedTweaksCollection_NoAutoPickup" />
 	</object>
+	<object Name="FoldingChair" Load="Merge">
+		<tag Name="NoAutoget" />
+	</object>
+	<object Name="PlasticTree" Load="Merge">
+		<tag Name="NoAutoget" />
+	</object>
 </objects>

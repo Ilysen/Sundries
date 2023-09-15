@@ -3,6 +3,7 @@ using XRL;
 using XRL.Language;
 using XRL.UI;
 using XRL.World;
+using XRL.World.Parts;
 using XRL.World.Skills.Cooking;
 
 namespace UnnamedTweaksCollection.HarmonyPatches
@@ -54,6 +55,26 @@ namespace UnnamedTweaksCollection.HarmonyPatches
                 return;
             if (__result && __instance.HasTag("UnnamedTweaksCollection_NoAutoPickup"))
                 __result = false;
+        }
+    }
+
+    [HarmonyPatch(typeof(LiquidVolume))]
+    class UnnamedTweaksCollection_LiquidVolume
+    {
+        /// <summary>
+        /// Prevents the auto-collection of fresh water in towns, even if the option is enabled. It's just the considerate thing to do!~
+        /// We check for towns by seeing if the player is in a screen that has a checkpoint. This isn't perfect, but it covers most of our bases.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(LiquidVolume.GetActiveAutogetLiquid))]
+        static void GetActiveAutogetLiquidPatch(LiquidVolume __instance, ref string __result)
+        {
+            if (!Options.GetOption("UnnamedTweaksCollection_EnableNoTakeTownWater").EqualsNoCase("Yes"))
+                return;
+            if (__instance.AutoCollectLiquidType != null || __result != "water")
+                return;
+            if (CheckpointingSystem.IsPlayerInCheckpoint())
+                __result = null;
         }
     }
 }
