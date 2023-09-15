@@ -1,9 +1,13 @@
 ﻿using HarmonyLib;
+using System;
+using System.Collections.Generic;
+using UnnamedTweaksCollection.Scripts;
 using XRL;
 using XRL.Language;
 using XRL.UI;
 using XRL.World;
 using XRL.World.Parts;
+using XRL.World.Parts.Skill;
 using XRL.World.Skills.Cooking;
 
 namespace UnnamedTweaksCollection.HarmonyPatches
@@ -75,6 +79,63 @@ namespace UnnamedTweaksCollection.HarmonyPatches
                 return;
             if (CheckpointingSystem.IsPlayerInCheckpoint())
                 __result = null;
+        }
+    }
+
+    [HarmonyPatch(typeof(Tinkering_Disassemble))]
+    class UnnamedTweaksCollection_TinkeringDisassemble
+    {
+        static readonly Dictionary<Type, string> removalMessages = new Dictionary<Type, string>()
+        {
+            { typeof(ModJewelEncrusted), "pry off the jewels" },
+            { typeof(ModEngraved), "buff out the engravings" },
+            { typeof(ModPainted), "wash away the paint" },
+            { typeof(ModSnailEncrusted), "pluck off the snails" },
+            { typeof(ModScaled), "grind away the scales" },
+            { typeof(ModFeathered), "pluck out the feathers" }
+        };
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(Tinkering_Disassemble.HandleEvent), new Type[] { typeof(OwnerGetInventoryActionsEvent) })]
+        static void HandleEventGetInventoryActionsPatch(OwnerGetInventoryActionsEvent E, ref bool __result)
+        {
+            if (!Options.GetOption("UnnamedTweaksCollection_EnableItemModReset").EqualsNoCase("Yes"))
+                return;
+            if (!__result)
+                return;
+            if (E.Object.GetModificationCount() >= 1)
+                E.AddAction("UnnamedTweaksCollection_RemoveAllMods", "remove all mods", "UnnamedTweaksCollection_RemoveAllMods", Key: 'O', FireOnActor: true);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(Tinkering_Disassemble.HandleEvent), new Type[] { typeof(InventoryActionEvent) })]
+        static void HandleEventHandleInventoryActionsPatch(InventoryActionEvent E, ref bool __result)
+        {
+            // We don't need to include the Options.GetOption() call in here since the item context action already won't appear if the option is disabled
+            if (!__result)
+                return;
+            if (E.Command == "UnnamedTweaksCollection_RemoveAllMods")
+            {
+                GameObject Target = E.Item.SplitFromStack();
+                int ItemMods = Target.GetModificationCount();
+                if (Popup.ShowYesNo($"Remove {ItemMods} mod{(ItemMods == 1 ? "" : "s")} from {Target.the} {Target.ShortDisplayName}? You will not get any materials back, and this cannot be undone.") != DialogResult.Yes)
+                    return;
+                List<string> removalDescriptors = new List<string>();
+                foreach (IModification mod in Target.GetPartsDescendedFrom<IModification>())
+                {
+                    if (removalMessages.TryGetValue(mod.GetType(), out string value))
+                        removalDescriptors.Add(value);
+                    Helpers.RemoveModification(Target, mod);
+                }
+                string workMessage = "astutely undo the changes";
+                if (removalDescriptors.Count > 0)
+                {
+                    if (removalDescriptors.Count < ItemMods)
+                        removalDescriptors.Add(workMessage.Replace("the changes", "the remaining changes"));
+                    workMessage = Grammar.MakeAndList(removalDescriptors.ToArray());
+                }
+                Popup.Show($"You {workMessage}, rendering {Target.the + Target.ShortDisplayName} {(Target.GetModificationCount() > 0 ? "mostly" : "perfectly")} unremarkable.");
+            }
         }
     }
 }
