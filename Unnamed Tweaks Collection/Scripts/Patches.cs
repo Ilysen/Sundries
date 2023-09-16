@@ -1,12 +1,12 @@
-﻿using HarmonyLib;
+﻿using ConsoleLib.Console;
+using HarmonyLib;
+using Qud.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using UnnamedTweaksCollection.Scripts;
 using XRL;
 using XRL.Language;
-using XRL.Messages;
 using XRL.UI;
 using XRL.World;
 using XRL.World.Parts;
@@ -93,42 +93,33 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         {
             UnityEngine.Debug.Log("Running transpiler");
             var codes = new List<CodeInstruction>(instructions);
-            /*var found = false;
+            var found = false;
             UnityEngine.Debug.Log($"Codes count: {codes.Count}");
             for (int i = 0; i < codes.Count; i++)
             {
                 UnityEngine.Debug.Log($"{i}: {(codes[i].opcode != null ? codes[i].opcode.ToString() : "null")} - {(codes[i].operand != null ? codes[i].operand.ToString() : "null")} (found: {found})");
-                if (codes[i].opcode == OpCodes.Stloc_S && codes[i].operand is LocalBuilder lb)
+                if (codes[i].Calls(AccessTools.Method(typeof(Popup), nameof(Popup.ShowOptionList))))
                 {
-                    if (lb.LocalIndex == 7)
-                    {
-                        if (!found)
-                        {
-                            UnityEngine.Debug.Log($"Found the first occurrence at index {i}. Marking.");
-                            found = true;
-                        }
-                        else
-                        {
-                            UnityEngine.Debug.Log($"Found the second occurrence at index {i}. Adding new code.");
-                            codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldloc_S, 7));
-                            codes.Insert(i + 1, CodeInstruction.Call(typeof(UnnamedTweaksCollection_EnergyCellSocket), nameof(GetCellIndex)));
-                            codes.Insert(i + 1, new CodeInstruction(OpCodes.Stloc_S, 7));
-                            UnityEngine.Debug.Log("New calls successfully added. Backing out.");
-                            break;
-                        }
-                    }
+                    codes[i] = CodeInstruction.Call(typeof(UnnamedTweaksCollection_EnergyCellSocket), nameof(NewShowOptionList));
+                    break;
                 }
-            }*/
-
+            }
             return codes.AsEnumerable();
         }
 
-        private static int GetCellIndex(int def)
+        // This place is a message...and part of a system of messages... pay attention to it!
+        // Sending this message was important to us.We considered ourselves to be a powerful culture.
+        // This place is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.
+        // What is here was dangerous and repulsive to us. This message is a warning about danger.
+        // The danger is in a particular location...it increases towards a center... the center of danger is here... of a particular size and shape, and below us.
+        // The danger is still present, in your time, as it was in ours.
+        // The danger is to the body, and it can kill.
+        // The form of the danger is an emanation of energy.
+        // The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.
+        private static int NewShowOptionList(string Title, IList<string> Options, IList<char> Hotkeys, int Spacing, string Intro, int MaxWidth, bool RespectOptionNewlines, bool AllowEscape, int DefaultSelected, string SpacingText, Action<int> onResult, GameObject context, IList<IRenderable> Icons, IRenderable IntroIcon, IList<QudMenuItem> Buttons, bool centerIntro, bool centerIntroIcon, int iconPosition, bool forceNewPopup)
         {
-            Popup.Show("Getting cell index. Default is " + def);
-            if (Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes"))
-                return 0;
-            return def;
+            // I hate this.
+            return Popup.ShowOptionList(Title, Options, Hotkeys, Spacing, Intro, MaxWidth, RespectOptionNewlines, AllowEscape, XRL.UI.Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes") ? 0 : DefaultSelected, SpacingText, onResult, context, Icons, IntroIcon, Buttons, centerIntro, centerIntroIcon, iconPosition, forceNewPopup);
         }
     }
 
