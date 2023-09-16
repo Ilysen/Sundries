@@ -12,4 +12,7 @@
 	<option ID="UnnamedTweaksCollection_EnableItemModReset"
 		DisplayText="Enable tweak: Disassemble skill allows resetting of item mods"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
+	<option ID="UnnamedTweaksCollection_EnableDefaultRemoveCell"
+		DisplayText="Enable tweak: Replace cell menu defaults to removing the cell (requires restart)"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
 </options>

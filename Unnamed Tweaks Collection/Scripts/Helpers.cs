@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using XRL;
-using XRL.Messages;
 using XRL.World;
 using XRL.World.Parts;
 
@@ -14,11 +13,103 @@ namespace UnnamedTweaksCollection.Scripts
     {
         public static void RemoveModification(GameObject Object, IModification ModPart)
         {
+            // TODO: Complexity and difficulty resets
+            // AntiGravity
+            // CoProcessor
+            // DrumLoaded
+            // Gesticulating
+            
+            // Unremovable: Colossal, Extradimensional, Psionic, relic effects
+            // Handles removal on its own: Featherweight
+
             AddsRep rep = Object.GetPart<AddsRep>();
+            int difficultyAdjustment = 0;
+            int complexityAdjustment = 0;
+            bool cellAddedByMod = false;
             if (rep == null)
                 goto PostReputationUpdates;
 
             string relevantSultan = null;
+            if (ModPart is ModAirfoil)
+            {
+                Object.ModIntProperty("ThrowRangeBonus", -4, true);
+                difficultyAdjustment = 1;
+                complexityAdjustment = 1;
+            }
+            else if (ModPart is ModAntiGravity)
+            {
+                difficultyAdjustment = 1;
+                complexityAdjustment = 2;
+                cellAddedByMod = true;
+            }
+            else if (ModPart is ModBeamsplitter)
+            {
+                MissileWeapon mw = Object.GetPart<MissileWeapon>();
+                mw.ShotsPerAction /= 3;
+                mw.ShotsPerAnimation /= 3;
+                difficultyAdjustment = 1;
+                complexityAdjustment = 2;
+            }
+            else if (ModPart is ModCleated Cleats)
+            {
+                SaveModifier sm = Object.GetPart<SaveModifier>();
+                sm.Amount -= ModCleated.GetSaveModifierAmount(Cleats.Tier);
+                if (sm.Amount <= 0)
+                    Object.RemovePart(sm);
+                difficultyAdjustment = 1;
+            }
+            else if (ModPart is ModCoProcessor)
+            {
+                difficultyAdjustment = 1;
+                complexityAdjustment = 2;
+                cellAddedByMod = true;
+            }
+            else if (ModPart is ModCounterweighted Counterweight)
+            {
+                Object.GetPart<MeleeWeapon>().HitBonus -= Counterweight.GetModificationLevel();
+                difficultyAdjustment = 1;
+                complexityAdjustment = 1;
+            }
+            else if (ModPart is ModDisplacer)
+            {
+                difficultyAdjustment = 2;
+                complexityAdjustment = 1;
+                cellAddedByMod = true;
+            }
+            else if (ModPart is ModDrumLoaded)
+            {
+                difficultyAdjustment = 1;
+                complexityAdjustment = 1;
+            }
+            else if (ModPart is ModElectrified)
+            {
+                difficultyAdjustment = 1;
+                complexityAdjustment = 1;
+                cellAddedByMod = true;
+            }
+            else if (ModPart is ModFilters)
+            {
+                difficultyAdjustment = 1;
+                complexityAdjustment = 1;
+            }
+            else if (ModPart is ModFlaming)
+            {
+                difficultyAdjustment = 1;
+                complexityAdjustment = 1;
+                cellAddedByMod = true;
+            }
+            else if (ModPart is ModFlexiweaved Flexiweave)
+            {
+                Object.GetPart<Armor>().DV -= Flexiweave.GetModificationLevel();
+                complexityAdjustment = 1;
+            }
+            else if (ModPart is ModFreezing)
+            {
+                difficultyAdjustment = 1;
+                complexityAdjustment = 1;
+                cellAddedByMod = true;
+            }
+
             if (ModPart is ModEngraved Engraved)
                 relevantSultan = Engraved.Sultan;
             else if (ModPart is ModPainted Painted)
@@ -33,29 +124,20 @@ namespace UnnamedTweaksCollection.Scripts
                 RemoveRepBoostForFaction(rep, "Mollusks");
             else if (ModPart is ModDisguise Disguise)
             {
-                MessageQueue.AddPlayerMessage($"Handling disguise logic where DisguiseBlueprint is {Disguise.DisguiseBlueprint}");
-                MessageQueue.AddPlayerMessage($"Searching AddsRep part with faction of {rep.Faction}");
                 string partParameter = GameObjectFactory.Factory.Blueprints[Disguise.DisguiseBlueprint]?.GetPartParameter<string>("Brain", "Factions", null);
+                difficultyAdjustment = 2;
                 if (partParameter == null)
-                {
-                    MessageQueue.AddPlayerMessage($"Found no matching parameter for this blueprint. Breaking");
                     goto PostDisguise;
-                }
                 foreach (string text in partParameter.CachedCommaExpansion())
                 {
-                    MessageQueue.AddPlayerMessage($"Checking this faction: {text}");
                     string cachedText = text;
                     if (Brain.ExtractFactionMembership(ref cachedText) > 0)
                     {
                         Faction faction = Factions.get(cachedText);
                         if (faction != null)
-                        {
-                            MessageQueue.AddPlayerMessage($"Faction found. Removing this part.");
                             RemoveRepBoostForFaction(rep, cachedText);
-                        }
                     }
                 }
-                MessageQueue.AddPlayerMessage($"Disguise equipper is {Disguise.ParentObject.Equipped}");
                 if (Disguise.ParentObject.Equipped is GameObject)
                 {
                     MethodInfo unapplyDisguise = Disguise.GetType().GetMethod("UnapplyDisguise", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -69,12 +151,10 @@ namespace UnnamedTweaksCollection.Scripts
 
             PostReputationUpdates:
 
-            MessageQueue.AddPlayerMessage($"Adjust commerce");
             Commerce commerce = Object.GetPart<Commerce>();
             if (commerce != null)
                 commerce.Value /= ModificationFactory.ModsByPart[ModPart.Name].Value;
 
-            MessageQueue.AddPlayerMessage($"Removing mod of name {ModPart.Name}");
             Object.RemovePart(ModPart);
         }
 
@@ -93,45 +173,33 @@ namespace UnnamedTweaksCollection.Scripts
             // But it's what we have available, so it's what we're dealing with. Paradoxically, this ensures maximum compatibility, so it's worth the pain.
             if (Faction.IsNullOrEmpty())
                 return;
-            MessageQueue.AddPlayerMessage($"Attempting to remove rep from the following rep string: {Rep.Faction}, for the following faction: {Faction}");
             string[] factionEntries = Rep.Faction.Split(',');
-            MessageQueue.AddPlayerMessage($"Rep string has been split up as follows: {string.Join("~", factionEntries)}");
             foreach (string factionEntry in factionEntries)
             {
                 string[] splitEntry = factionEntry.Split(':');
-                MessageQueue.AddPlayerMessage($"Parsing for faction entry {factionEntry}, further split into {string.Join("~", splitEntry)}");
                 if (splitEntry[0] == Faction && int.TryParse(splitEntry[1], out int toRemove))
                 {
-                    MessageQueue.AddPlayerMessage("This is our faction. Attempting to remove...");
                     if (Rep.AppliedBonus)
-                        The.Game.PlayerReputation.modify(Faction, -toRemove, "AddsRepApply");
+                        The.Game.PlayerReputation.modify(Faction, -toRemove, "AddsRepApply", silent: true, transient: true);
                     // There's probably a cleaner way to do this but I've been awake for 20 hours. :3
                     Rep.Faction = Rep.Faction.Replace($",{factionEntry}", string.Empty);
                     Rep.Faction = Rep.Faction.Replace($"{factionEntry},", string.Empty);
                     Rep.Faction = Rep.Faction.Replace(factionEntry, string.Empty);
-                    MessageQueue.AddPlayerMessage($"New string state is: {Rep.Faction}");
                     break;
                 }
             }
             if (Rep.Faction == string.Empty)
-            {
-                MessageQueue.AddPlayerMessage("Rep part is now empty. Removing.");
                 Rep.ParentObject.RemovePart(Rep);
-            }
         }
 
         private static string FindFactionForSultan(string SultanName)
         {
             IEnumerable<HistoricEntity> Sultans = HistoryAPI.GetSultans().Where(c => c.GetCurrentSnapshot().GetProperty("name") == SultanName);
             if (Sultans.IsNullOrEmpty())
-            {
-                MessageQueue.AddPlayerMessage($"Found no entities with the specified name. Breaking");
                 return null;
-            }
             foreach (HistoricEntity Sultan in Sultans)
             {
                 string cultName = Faction.getSultanFactionName(Sultan.GetCurrentSnapshot().GetProperty("period", "0"));
-                MessageQueue.AddPlayerMessage($"This cult name is {cultName}. The period is {Sultan.GetCurrentSnapshot().GetProperty("period", "NOT FOUND")}.");
                 if (cultName != null)
                     return cultName;
             }

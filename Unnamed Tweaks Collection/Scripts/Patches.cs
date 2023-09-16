@@ -1,9 +1,12 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Emit;
 using UnnamedTweaksCollection.Scripts;
 using XRL;
 using XRL.Language;
+using XRL.Messages;
 using XRL.UI;
 using XRL.World;
 using XRL.World.Parts;
@@ -79,6 +82,69 @@ namespace UnnamedTweaksCollection.HarmonyPatches
                 return;
             if (CheckpointingSystem.IsPlayerInCheckpoint())
                 __result = null;
+        }
+    }
+
+    [HarmonyPatch(typeof(EnergyCellSocket))]
+    [HarmonyPatch("AttemptReplaceCell")]
+    public static class UnnamedTweaksCollection_EnergyCellSocket
+    {
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            UnityEngine.Debug.Log("Running transpiler");
+            UnityEngine.Debug.Log(Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell"));
+            if (!Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes"))
+            {
+                UnityEngine.Debug.Log("Option is not set. Returning.");
+                return instructions;
+            }
+            UnityEngine.Debug.Log("Option is set. Proceeding.");
+            var found = false;
+            var codes = new List<CodeInstruction>(instructions);
+            bool optionSet = Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes");
+            UnityEngine.Debug.Log($"Codes count: {codes.Count}");
+            for (int i = 0; i < codes.Count; i++)
+            {
+                UnityEngine.Debug.Log($"{i}: {(codes[i].opcode != null ? codes[i].opcode.ToString() : "null")} - {(codes[i].operand != null ? codes[i].operand.ToString() : "null")} (found: {found})");
+                if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s)
+                {
+                    UnityEngine.Debug.Log($"Opcode is loading a string: {s}. Continuing...");
+                    if (s.Contains("Choose a cell for ") && !found)
+                    {
+                        UnityEngine.Debug.Log($"Found the relevant method. Setting found to true");
+                        found = true;
+                    }
+                    else if (s == "" && found)
+                    {
+                        UnityEngine.Debug.Log($"Found empty string with found true. Checking previous opcode for Ldloc_S and int operand");
+                        CodeInstruction prevCode = codes[i - 1];
+                        UnityEngine.Debug.Log($"Previous code data: {(prevCode.opcode != null ? prevCode.opcode.ToString() : "null")} - {(prevCode.operand != null ? prevCode.operand.ToString() : "null")}");
+                        if (codes[i - 1].opcode == OpCodes.Ldloc_S && codes[i - 1].operand is LocalBuilder lb)
+                        {
+                            UnityEngine.Debug.Log($"Operand is local builder. Value: {lb}");
+                            if (lb.LocalType == typeof(int))
+                            {
+                                UnityEngine.Debug.Log($"Found. Replacing code instruction and breaking.");
+                                codes[i - 1] = CodeInstruction.Call(typeof(UnnamedTweaksCollection_EnergyCellSocket), nameof(GetCellIndex));
+                                UnityEngine.Debug.Log($"New code data: {codes[i - 1].opcode}, {codes[i - 1].operand}");
+                                break;
+                            }
+                        }
+                        else
+                            UnityEngine.Debug.Log($"Not found. Continuing. {codes[i - 1].opcode == OpCodes.Ldloc_S}, {codes[i - 1].operand is int}. Operand is {codes[i - 1].operand.GetType()}.");
+                    }
+                }
+            }
+
+            return codes.AsEnumerable();
+        }
+
+        private static int GetCellIndex()
+        {
+            Popup.Show("Getting cell index");
+            if (Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes"))
+                return 0;
+            return 1;
         }
     }
 
