@@ -85,19 +85,15 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         }
     }
 
-    [HarmonyPatch(typeof(EnergyCellSocket))]
-    [HarmonyPatch("AttemptReplaceCell")]
+    [HarmonyPatch(typeof(EnergyCellSocket), nameof(EnergyCellSocket.AttemptReplaceCell))]
     public static class UnnamedTweaksCollection_EnergyCellSocket
     {
-        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> AttemptReplaceCellTranspiler(IEnumerable<CodeInstruction> instructions)
         {
-            UnityEngine.Debug.Log("Running transpiler");
             var codes = new List<CodeInstruction>(instructions);
-            var found = false;
-            UnityEngine.Debug.Log($"Codes count: {codes.Count}");
             for (int i = 0; i < codes.Count; i++)
             {
-                UnityEngine.Debug.Log($"{i}: {(codes[i].opcode != null ? codes[i].opcode.ToString() : "null")} - {(codes[i].operand != null ? codes[i].operand.ToString() : "null")} (found: {found})");
                 if (codes[i].Calls(AccessTools.Method(typeof(Popup), nameof(Popup.ShowOptionList))))
                 {
                     codes[i] = CodeInstruction.Call(typeof(UnnamedTweaksCollection_EnergyCellSocket), nameof(NewShowOptionList));
@@ -107,18 +103,17 @@ namespace UnnamedTweaksCollection.HarmonyPatches
             return codes.AsEnumerable();
         }
 
-        // This place is a message...and part of a system of messages... pay attention to it!
+        // This place is a message... and part of a system of messages... pay attention to it!
         // Sending this message was important to us.We considered ourselves to be a powerful culture.
         // This place is not a place of honor... no highly esteemed deed is commemorated here... nothing valued is here.
         // What is here was dangerous and repulsive to us. This message is a warning about danger.
-        // The danger is in a particular location...it increases towards a center... the center of danger is here... of a particular size and shape, and below us.
+        // The danger is in a particular location... it increases towards a center... the center of danger is here... of a particular size and shape, and below us.
         // The danger is still present, in your time, as it was in ours.
         // The danger is to the body, and it can kill.
         // The form of the danger is an emanation of energy.
         // The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.
         private static int NewShowOptionList(string Title, IList<string> Options, IList<char> Hotkeys, int Spacing, string Intro, int MaxWidth, bool RespectOptionNewlines, bool AllowEscape, int DefaultSelected, string SpacingText, Action<int> onResult, GameObject context, IList<IRenderable> Icons, IRenderable IntroIcon, IList<QudMenuItem> Buttons, bool centerIntro, bool centerIntroIcon, int iconPosition, bool forceNewPopup)
         {
-            // I hate this.
             return Popup.ShowOptionList(Title, Options, Hotkeys, Spacing, Intro, MaxWidth, RespectOptionNewlines, AllowEscape, XRL.UI.Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes") ? 0 : DefaultSelected, SpacingText, onResult, context, Icons, IntroIcon, Buttons, centerIntro, centerIntroIcon, iconPosition, forceNewPopup);
         }
     }
