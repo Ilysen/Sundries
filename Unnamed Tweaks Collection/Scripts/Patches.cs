@@ -88,6 +88,9 @@ namespace UnnamedTweaksCollection.HarmonyPatches
     [HarmonyPatch(typeof(EnergyCellSocket), nameof(EnergyCellSocket.AttemptReplaceCell))]
     public static class UnnamedTweaksCollection_EnergyCellSocket
     {
+        /// <summary>
+        /// Causes the "replace cell" menu to default to the option to remove a cell, like it was before version 204.98.
+        /// </summary>
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> AttemptReplaceCellTranspiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -115,63 +118,6 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         private static int NewShowOptionList(string Title, IList<string> Options, IList<char> Hotkeys, int Spacing, string Intro, int MaxWidth, bool RespectOptionNewlines, bool AllowEscape, int DefaultSelected, string SpacingText, Action<int> onResult, GameObject context, IList<IRenderable> Icons, IRenderable IntroIcon, IList<QudMenuItem> Buttons, bool centerIntro, bool centerIntroIcon, int iconPosition, bool forceNewPopup)
         {
             return Popup.ShowOptionList(Title, Options, Hotkeys, Spacing, Intro, MaxWidth, RespectOptionNewlines, AllowEscape, XRL.UI.Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes") ? 0 : DefaultSelected, SpacingText, onResult, context, Icons, IntroIcon, Buttons, centerIntro, centerIntroIcon, iconPosition, forceNewPopup);
-        }
-    }
-
-    [HarmonyPatch(typeof(Tinkering_Disassemble))]
-    class UnnamedTweaksCollection_TinkeringDisassemble
-    {
-        static readonly Dictionary<Type, string> removalMessages = new Dictionary<Type, string>()
-        {
-            { typeof(ModJewelEncrusted), "pry off the jewels" },
-            { typeof(ModEngraved), "buff out the engravings" },
-            { typeof(ModPainted), "wash away the paint" },
-            { typeof(ModSnailEncrusted), "pluck off the snails" },
-            { typeof(ModScaled), "grind away the scales" },
-            { typeof(ModFeathered), "pluck out the feathers" }
-        };
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(Tinkering_Disassemble.HandleEvent), new Type[] { typeof(OwnerGetInventoryActionsEvent) })]
-        static void HandleEventGetInventoryActionsPatch(OwnerGetInventoryActionsEvent E, ref bool __result)
-        {
-            if (!Options.GetOption("UnnamedTweaksCollection_EnableItemModReset").EqualsNoCase("Yes"))
-                return;
-            if (!__result)
-                return;
-            if (E.Object.GetModificationCount() >= 1)
-                E.AddAction("UnnamedTweaksCollection_RemoveAllMods", "remove all mods", "UnnamedTweaksCollection_RemoveAllMods", Key: 'O', FireOnActor: true);
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(Tinkering_Disassemble.HandleEvent), new Type[] { typeof(InventoryActionEvent) })]
-        static void HandleEventHandleInventoryActionsPatch(InventoryActionEvent E, ref bool __result)
-        {
-            // We don't need to include the Options.GetOption() call in here since the item context action already won't appear if the option is disabled
-            if (!__result)
-                return;
-            if (E.Command == "UnnamedTweaksCollection_RemoveAllMods")
-            {
-                GameObject Target = E.Item.SplitFromStack();
-                int ItemMods = Target.GetModificationCount();
-                if (Popup.ShowYesNo($"Remove {ItemMods} mod{(ItemMods == 1 ? "" : "s")} from {Target.the} {Target.ShortDisplayName}? You will not get any materials back, and this cannot be undone.") != DialogResult.Yes)
-                    return;
-                List<string> removalDescriptors = new List<string>();
-                foreach (IModification mod in Target.GetPartsDescendedFrom<IModification>())
-                {
-                    if (removalMessages.TryGetValue(mod.GetType(), out string value))
-                        removalDescriptors.Add(value);
-                    Helpers.RemoveModification(Target, mod);
-                }
-                string workMessage = "astutely undo the changes";
-                if (removalDescriptors.Count > 0)
-                {
-                    if (removalDescriptors.Count < ItemMods)
-                        removalDescriptors.Add(workMessage.Replace("the changes", "the remaining changes"));
-                    workMessage = Grammar.MakeAndList(removalDescriptors.ToArray());
-                }
-                Popup.Show($"You {workMessage}, rendering {Target.the + Target.ShortDisplayName} {(Target.GetModificationCount() > 0 ? "mostly" : "perfectly")} unremarkable.");
-            }
         }
     }
 }

@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Compile Include="Scripts\Helpers.cs" />
     <Compile Include="Scripts\Patches.cs" />
     <Compile Include="Scripts\UnnamedTweaksCollection_Customs_Mindful.cs" />
     <Compile Include="Scripts\Wishes.cs" />
