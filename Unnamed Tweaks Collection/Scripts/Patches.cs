@@ -92,59 +92,43 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             UnityEngine.Debug.Log("Running transpiler");
-            UnityEngine.Debug.Log(Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell"));
-            if (!Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes"))
-            {
-                UnityEngine.Debug.Log("Option is not set. Returning.");
-                return instructions;
-            }
-            UnityEngine.Debug.Log("Option is set. Proceeding.");
-            var found = false;
             var codes = new List<CodeInstruction>(instructions);
-            bool optionSet = Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes");
+            /*var found = false;
             UnityEngine.Debug.Log($"Codes count: {codes.Count}");
             for (int i = 0; i < codes.Count; i++)
             {
                 UnityEngine.Debug.Log($"{i}: {(codes[i].opcode != null ? codes[i].opcode.ToString() : "null")} - {(codes[i].operand != null ? codes[i].operand.ToString() : "null")} (found: {found})");
-                if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s)
+                if (codes[i].opcode == OpCodes.Stloc_S && codes[i].operand is LocalBuilder lb)
                 {
-                    UnityEngine.Debug.Log($"Opcode is loading a string: {s}. Continuing...");
-                    if (s.Contains("Choose a cell for ") && !found)
+                    if (lb.LocalIndex == 7)
                     {
-                        UnityEngine.Debug.Log($"Found the relevant method. Setting found to true");
-                        found = true;
-                    }
-                    else if (s == "" && found)
-                    {
-                        UnityEngine.Debug.Log($"Found empty string with found true. Checking previous opcode for Ldloc_S and int operand");
-                        CodeInstruction prevCode = codes[i - 1];
-                        UnityEngine.Debug.Log($"Previous code data: {(prevCode.opcode != null ? prevCode.opcode.ToString() : "null")} - {(prevCode.operand != null ? prevCode.operand.ToString() : "null")}");
-                        if (codes[i - 1].opcode == OpCodes.Ldloc_S && codes[i - 1].operand is LocalBuilder lb)
+                        if (!found)
                         {
-                            UnityEngine.Debug.Log($"Operand is local builder. Value: {lb}");
-                            if (lb.LocalType == typeof(int))
-                            {
-                                UnityEngine.Debug.Log($"Found. Replacing code instruction and breaking.");
-                                codes[i - 1] = CodeInstruction.Call(typeof(UnnamedTweaksCollection_EnergyCellSocket), nameof(GetCellIndex));
-                                UnityEngine.Debug.Log($"New code data: {codes[i - 1].opcode}, {codes[i - 1].operand}");
-                                break;
-                            }
+                            UnityEngine.Debug.Log($"Found the first occurrence at index {i}. Marking.");
+                            found = true;
                         }
                         else
-                            UnityEngine.Debug.Log($"Not found. Continuing. {codes[i - 1].opcode == OpCodes.Ldloc_S}, {codes[i - 1].operand is int}. Operand is {codes[i - 1].operand.GetType()}.");
+                        {
+                            UnityEngine.Debug.Log($"Found the second occurrence at index {i}. Adding new code.");
+                            codes.Insert(i + 1, new CodeInstruction(OpCodes.Ldloc_S, 7));
+                            codes.Insert(i + 1, CodeInstruction.Call(typeof(UnnamedTweaksCollection_EnergyCellSocket), nameof(GetCellIndex)));
+                            codes.Insert(i + 1, new CodeInstruction(OpCodes.Stloc_S, 7));
+                            UnityEngine.Debug.Log("New calls successfully added. Backing out.");
+                            break;
+                        }
                     }
                 }
-            }
+            }*/
 
             return codes.AsEnumerable();
         }
 
-        private static int GetCellIndex()
+        private static int GetCellIndex(int def)
         {
-            Popup.Show("Getting cell index");
+            Popup.Show("Getting cell index. Default is " + def);
             if (Options.GetOption("UnnamedTweaksCollection_EnableDefaultRemoveCell").EqualsNoCase("Yes"))
                 return 0;
-            return 1;
+            return def;
         }
     }
 

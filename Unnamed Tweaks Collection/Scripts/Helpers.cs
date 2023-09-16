@@ -180,7 +180,7 @@ namespace UnnamedTweaksCollection.Scripts
                 if (splitEntry[0] == Faction && int.TryParse(splitEntry[1], out int toRemove))
                 {
                     if (Rep.AppliedBonus)
-                        The.Game.PlayerReputation.modify(Faction, -toRemove, "AddsRepApply", silent: true, transient: true);
+                        The.Game.PlayerReputation.modify(Faction, -toRemove, "AddsRepApply", Silent: true, Transient: true);
                     // There's probably a cleaner way to do this but I've been awake for 20 hours. :3
                     Rep.Faction = Rep.Faction.Replace($",{factionEntry}", string.Empty);
                     Rep.Faction = Rep.Faction.Replace($"{factionEntry},", string.Empty);

@@ -89,7 +89,7 @@ namespace XRL.World.Parts.Skill
             {
                 if (retroactive)
                 {
-                    The.Game.PlayerReputation.modify(chosenFaction, 25, "UnnamedTweaksCollection_WaterRitualMindfulAward", because: $"because you were mindful of their sensitive history with {record.ParentObject.ShortDisplayName}");
+                    The.Game.PlayerReputation.modify(chosenFaction, 25, "UnnamedTweaksCollection_WaterRitualMindfulAward", Because: $"because you were mindful of their sensitive history with {record.ParentObject.ShortDisplayName}");
                 }
                 else
                     record.ParentObject.SetStringProperty("UnnamedTweaksCollection_MindfulFaction", chosenFaction);
