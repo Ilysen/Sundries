@@ -35,7 +35,7 @@ namespace XRL.World.Parts
         /// <summary>
         /// Returns how much energy it will cost to move a given <see cref="GameObject"/> through hauling.
         /// </summary>
-        private int EnergyForItem(GameObject go) => 50 * Math.Max(1, go.Weight);
+        private int EnergyForItem(GameObject go) => 10 * Math.Max(1, go.Weight);
 
         public override void Attach()
         {

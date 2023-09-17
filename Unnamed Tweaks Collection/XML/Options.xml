@@ -1,18 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <options>
-	<option ID="UnnamedTweaksCollection_EnableRenameCarbideChefRecipes"
-		DisplayText="Enable tweak: Name Carbide Chef recipes" Category="Unnamed Tweaks Collection"
-		Type="Checkbox" Default="Yes"></option>
-	<option ID="UnnamedTweaksCollection_EnableNoBonesTrashTakeAll"
-		DisplayText="Enable tweak: Block bones and trash from Take All"
-		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
-	<option ID="UnnamedTweaksCollection_EnableNoTakeTownWater"
-		DisplayText="Enable tweak: Block auto-collection of fresh water in towns (it's just common courtesy!)"
-		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
-	<option ID="UnnamedTweaksCollection_EnableDefaultRemoveCell"
-		DisplayText="Enable tweak: Replace cell menu defaults to removing the cell"
-		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
+	<option ID="UnnamedTweaksCollection_NameCarbideChefRecipes"
+		DisplayText="Allow naming of Carbide Chef recipes" Category="Unnamed Tweaks Collection"
+		Type="Checkbox" Default="Yes">
+		<helptext>
+			{{W|Due to code limitations, existing recipes are sadly unaffected.}}
+		</helptext>
+	</option>
+	<option ID="UnnamedTweaksCollection_DontTakeTownWater"
+		DisplayText="Block auto-collection of fresh water in towns"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
+	<option ID="UnnamedTweaksCollection_DontTakeAllJunk"
+		DisplayText="Block junk from Take All"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
+		<helptext>
+			This includes includes bones, boulders, flowers, and trash.
+
+			{{W|Only applies to newly-generated objects.}}
+		</helptext>
+	</option>
+	<option ID="UnnamedTweaksCollection_DifferentiateMaxCells"
+		DisplayText="Differentiate fully-charged energy cells"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
+	</option>
 	<option ID="UnnamedTweaksCollection_EnableItemHauling"
-		DisplayText="Enable tweak: Add item hauling system"
-		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
+		DisplayText="Enable item hauling system"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No">
+		<helptext>
+			Implements a toggled ability that allows you to {{rules|drag things along the ground without picking them up}}, although doing so {{rules|takes a lot of time}}.
+
+			{{W|Can be freely enabled or disabled in existing saves, but requires a save reload.}}
+		</helptext>
+	</option>
+	<option ID="UnnamedTweaksCollection_RemoveCellByDefault"
+		DisplayText="Highlight 'remove cell' by default in the replace cell menu"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
 </options>
