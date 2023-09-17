@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<activatedabilities>
+	<ability Command="UnnamedTweaksCollectionToggleHaul">
+		<description>
+			<p>Move items along the ground without picking them up.</p>
+			<p>Can only be used with items beneath you.</p>
+			<p>Passes extra time proportional to the weight of each item being moved.</p>
+		</description>
+		<UITile Tile="Abilities/abil_haul_toggle_off.bmp" Foreground="y" Detail="w" />
+		<UITile Tile="Abilities/abil_haul_toggle_on.bmp" Foreground="Y" Detail="w" State="ToggleOn" />
+	</ability>
+</activatedabilities>

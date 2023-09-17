@@ -4,6 +4,6 @@
 		<power Name="Mindful" Cost="200" Attribute="Intelligence" Minimum="19"
 			Class="UnnamedTweaksCollection_Customs_Mindful" Prereq="Customs_Tactful"
 			Snippet="being mindful"
-			Description="Whenever you begin the water ritual with a new creature, you can reduce the reputation penalty with one of their hated factions by 25. If you purchase this power after you treat with a creature, this effect activates the next time you treat with them." />
+			Description="Whenever you begin the water ritual with a new creature, you can reduce the reputation penalty with one faction that dislikes or hates them by 25. If you purchase this power after you treat with a creature, it activates the next time you treat with them." />
 	</skill>
 </skills>
