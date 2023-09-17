@@ -12,4 +12,7 @@
 	<option ID="UnnamedTweaksCollection_EnableDefaultRemoveCell"
 		DisplayText="Enable tweak: Replace cell menu defaults to removing the cell"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
+	<option ID="UnnamedTweaksCollection_EnableItemHauling"
+		DisplayText="Enable tweak: Add item hauling system"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes"></option>
 </options>

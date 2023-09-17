@@ -1,5 +1,4 @@
-﻿using ConsoleLib.Console;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using XRL.Messages;
@@ -7,29 +6,48 @@ using XRL.Rules;
 
 namespace XRL.World.Parts
 {
+    /// <summary>
+    /// This class is used to handle the logic of the item hauling system. The part itself is added and removed from the player in <see cref="UnnamedTweaksCollection.Scripts.LoadGameHandler"/> and <see cref="UnnamedTweaksCollection.Scripts.NewCharacterHandler"/>.
+    /// </summary>
     [Serializable]
-    [PlayerMutator]
-    public class UnnamedTweaksCollection_HaulingHandler : IPart, IPlayerMutator
+    public class UnnamedTweaksCollection_HaulingHandler : IPart
     {
-        public static readonly string ItemHaulCommand = "UnnamedTweaksCollectionToggleHaul";
+        /// <summary>
+        /// The string command used to toggle hauling. Should correspond to the key in Abilities.xml.
+        /// </summary>
+        public static readonly string ItemHaulCommand = "UnnamedTweaksCollection_ToggleHaul";
+
+        /// <summary>
+        /// Wrapper that checks if <see cref="ActivatedAbility"/> exists and is toggled on.
+        /// </summary>
         private bool IsHauling => IsMyActivatedAbilityToggledOn(ActivatedAbility, ParentObject);
+
+        /// <summary>
+        /// The <see cref="Guid"/> of the active ability that's used to keep track of 
+        /// </summary>
         public Guid ActivatedAbility;
 
-        public void mutate(GameObject player)
-        {
-            player.AddPart<UnnamedTweaksCollection_HaulingHandler>();
-        }
+        /// <summary>
+        /// Returns whether or not a given <see cref="GameObject"/> can be moved by the hauling system.
+        /// </summary>
+        private bool CanHaul(GameObject go) => go.IsTakeable() && go.IsValid() && !go.IsInGraveyard();
+
+        /// <summary>
+        /// Returns how much energy it will cost to move a given <see cref="GameObject"/> through hauling.
+        /// </summary>
+        private int EnergyForItem(GameObject go) => 50 * Math.Max(1, go.Weight);
 
         public override void Attach()
         {
             if (ActivatedAbility == Guid.Empty)
-                ActivatedAbility = ParentObject.AddActivatedAbility("Haul Items", ItemHaulCommand, "Skill", Toggleable: true);
+                ActivatedAbility = ParentObject.AddActivatedAbility("Haul Items", ItemHaulCommand, "Skill", Silent: true, Toggleable: true);
             base.Attach();
         }
 
-        private bool CanHaul(GameObject go)
+        public override void Remove()
         {
-            return go.IsTakeable() && go.IsValid() && !go.IsInGraveyard();
+            RemoveMyActivatedAbility(ref ActivatedAbility, ParentObject);
+            base.Remove();
         }
 
         public override bool WantEvent(int ID, int cascade)
@@ -53,9 +71,9 @@ namespace XRL.World.Parts
                         foreach (GameObject go in haulables)
                             totalLoad += EnergyForItem(go);
                         if (totalLoad >= 2000)
-                            loadWarning = " {{W|Hauling this load will take some time.}}.";
+                            loadWarning = " {{W|Hauling this load will be slow.}}";
                         if (totalLoad >= 5000)
-                            loadWarning = " {{R|Hauling this load will be very slow}}.";
+                            loadWarning = " {{R|Hauling this load will be very slow.}}";
                     }
                     MessageQueue.AddPlayerMessage("You {{c|" + (!IsHauling ? "start" : "stop") + " hauling items}}." + loadWarning);
                     ToggleMyActivatedAbility(ActivatedAbility, E.Actor, true);
@@ -92,7 +110,5 @@ namespace XRL.World.Parts
             }
             return base.HandleEvent(E);
         }
-
-        private int EnergyForItem(GameObject go) => 50 * Math.Max(1, go.Weight);
     }
 }
