@@ -6,11 +6,19 @@ namespace UnnamedTweaksCollection.Scripts
     {
         /// <summary>
         /// Returns whether or not the given <see cref="Tweaks"/> entry is enabled.
-        /// As of right now every tweakable setting uses a checkbox, but this could be expanded to other option types in the future.
+        /// This only applies for checkbox tweaks.
         /// </summary>
         public static bool TweakEnabled(Tweaks tweakType)
         {
-            return Options.GetOption($"UnnamedTweaksCollection_{tweakType}").EqualsNoCase("Yes");
+            return TweakSetting(tweakType).EqualsNoCase("Yes");
+        }
+
+        /// <summary>
+        /// Fetches the current state of a given tweak's setting, if it has one.
+        /// </summary>
+        public static string TweakSetting(Tweaks tweakType)
+        {
+            return Options.GetOption($"UnnamedTweaksCollection_{tweakType}");
         }
     }
 
@@ -20,12 +28,17 @@ namespace UnnamedTweaksCollection.Scripts
     /// Thus, a tweak named <c>ExampleTweak</c> would correspond to an option whose key is equal to <c>UnnamedTweaksCollection_ExampleTweak</c>.
     /// The naming must be exact for the system to pick up the setting!
     /// </summary>
+    
+    // The following tweaks can't be disabled right now due to there being no meaningful way to change XML loading depending on conditionals:
+    // - Implement the Mindful skill, under the Customs and Folklore tree
+    // Once the infrastructure is there, they'll be made toggleable!
     public enum Tweaks
     {
         None,
         NameCarbideChefRecipes,
-        DontTakeTownWater,
         DontTakeAllJunk,
+        DontTakeTownWater,
+        DontTakeYurlsTreeItMakesThemSad,
         DifferentiateMaxCells,
         EnableItemHauling,
         RemoveCellByDefault

@@ -83,8 +83,25 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         {
             if (!Helpers.TweakEnabled(Tweaks.DontTakeAllJunk))
                 return;
-            if (__result && __instance.HasTag("UnnamedTweaksCollection_NoAutoPickup"))
+            if (__result && __instance.HasTag("UnnamedTweaksCollection_NoTakeAll"))
                 __result = false;
+        }
+
+        /// <summary>
+        /// As <see cref="ShouldTakeAllPatch(GameObject, ref bool)"/>, but for autoget instead.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(GameObject.CanAutoget))]
+        static void CanAutogetPatch(GameObject __instance, ref bool __result)
+        {
+            string currentSetting = Helpers.TweakSetting(Tweaks.DontTakeYurlsTreeItMakesThemSad);
+            if (currentSetting.EqualsNoCase("Never"))
+                return;
+            if (__result && __instance.HasTag("UnnamedTweaksCollection_NoAutogetInTowns"))
+            {
+                if ((currentSetting.EqualsNoCase("In Towns") && CheckpointingSystem.IsPlayerInCheckpoint()) || currentSetting.EqualsNoCase("Always"))
+                    __result = false;
+            }
         }
     }
 

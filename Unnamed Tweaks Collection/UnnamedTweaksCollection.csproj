@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Scripts\Helpers.cs" />
     <Compile Include="Scripts\ItemHauling.cs" />
     <Compile Include="Scripts\LoadGameHandler.cs" />
     <Compile Include="Scripts\Patches.cs" />

@@ -7,6 +7,15 @@
 			{{W|Due to code limitations, existing recipes are sadly unaffected.}}
 		</helptext>
 	</option>
+	<option ID="UnnamedTweaksCollection_DontTakeYurlsTreeItMakesThemSad"
+		DisplayText="Block auto-collection of decorations"
+		Category="Unnamed Tweaks Collection" Type="Combo" Values="Never,In Towns,Always" Default="In Towns">
+		<helptext>
+			This includes metal folding chairs and plastic trees.
+
+			{{W|Only applies to newly-generated objects.}}
+		</helptext>
+	</option>
 	<option ID="UnnamedTweaksCollection_DontTakeTownWater"
 		DisplayText="Block auto-collection of fresh water in towns"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
