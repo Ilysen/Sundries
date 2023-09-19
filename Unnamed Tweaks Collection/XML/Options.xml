@@ -23,7 +23,7 @@
 		DisplayText="Block junk from Take All"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
 		<helptext>
-			This includes includes bones, boulders, flowers, and trash.
+			This includes includes bedrolls, bones, boulders, flowers, and trash.
 
 			{{W|Only applies to newly-generated objects.}}
 		</helptext>

@@ -3,6 +3,9 @@
 	<object Name="BaseStone" Load="Merge">
 		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
 	</object>
+	<object Name="Bedroll" Load="Merge">
+		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
+	</object>
 	<object Name="Bones" Load="Merge">
 		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
 	</object>
