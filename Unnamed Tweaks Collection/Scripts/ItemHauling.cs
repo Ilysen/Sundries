@@ -119,7 +119,10 @@ namespace XRL.World.Parts
                     {
                         if (E.Actor.TakeObject(go, true, Context: "Hauling") &&
                             InventoryActionEvent.Check(E.Actor, E.Actor, go, "CommandDropObject", Forced: true, Silent: true))
+                        {
+                            E.Actor.UseEnergy(EnergyForItem(go));
                             hauled = true;
+                        }
                         AutoAct.Interrupt();
                     }
                     if (ToHaul.Count <= 0)
