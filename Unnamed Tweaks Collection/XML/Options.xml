@@ -33,12 +33,14 @@
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
 	</option>
 	<option ID="UnnamedTweaksCollection_EnableItemHauling"
-		DisplayText="Enable item hauling system"
-		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No">
+		DisplayText="Item hauling behavior"
+		Category="Unnamed Tweaks Collection" Type="Combo" Values="Disabled,Cached,All" Default="Disabled">
 		<helptext>
-			Implements a toggled ability that allows you to {{rules|drag things along the ground without picking them up}}, although doing so {{rules|takes a lot of time}}.
-
-			{{W|Can be freely enabled or disabled in existing saves, but requires a save reload.}}
+			Implements a toggled ability that allows you to {{rules|drag things along the ground without picking them up}}, although doing so {{rules|takes a lot of time}}. Can be freely enabled or disabled in existing saves, but requires a save reload.
+			
+			{{W|Disabled:}} Disable the item hauling system.
+			{{W|Cached:}} You haul only objects that were beneath you when you started hauling. Moving over new ones won't include them.
+			{{W|All:}} You haul all objects beneath you, even if they weren't present when you started.
 		</helptext>
 	</option>
 	<option ID="UnnamedTweaksCollection_RemoveCellByDefault"
