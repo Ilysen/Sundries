@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<conversations>
+	<conversation ID="Otho" Load="Merge">
+		<node ID="BeginCallToArms" Load="Merge">
+			<choice GotoID="UnnamedTweaksCollection_BarathrumitesHide_1">You need to get everyone to safety, Otho.</choice>
+		</node>
+		<node ID="UnnamedTweaksCollection_BarathrumitesHide_1">
+			<text>
+				You truly believe you can handle the Templar alone?
+				
+				No. You are capable, but this is beyond even you.
+			</text>
+			<choice GotoID="UnnamedTweaksCollection_BarathrumitesHide_2">I don't care. Get everyone to safety.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Very well.</choice>
+		</node>
+		<node ID="UnnamedTweaksCollection_BarathrumitesHide_2">
+			<text>
+				{{emote|*Otho looks like =pronouns.subjective='s about to say something, then pauses.*}}
+
+				Are you certain, =pluralizeifplayerplural==stringgamestate:BarathrumitesRank:delver=?
+			</text>
+			<choice GotoID="UnnamedTweaksCollection_BarathrumitesHide_3">I'm sure. Get below, and hurry.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">...if you insist, then I will not stop you.</choice>
+		</node>
+		<node ID="UnnamedTweaksCollection_BarathrumitesHide_3">
+			<text>
+				Thank you, =pluralizeifplayerplural==stringgamestate:BarathrumitesRank:delver=.
+				
+				Good luck.
+			</text>
+			<choice GotoID="End" Execute="XRL.World.Parts.UnnamedTweaksCollection_BarathrumiteShelter:HitTheBricks" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Thank you, Otho. I'll need it.</choice>
+		</node>
+	</conversation>
+</conversations>

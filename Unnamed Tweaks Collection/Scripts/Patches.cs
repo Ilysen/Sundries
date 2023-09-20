@@ -41,6 +41,26 @@ namespace UnnamedTweaksCollection.HarmonyPatches
             }
         }
     }
+    
+    [HarmonyPatch(typeof(ScriptCallToArmsPart))]
+    class UnnamedTweaksCollection_ScriptCallToArmsPart
+    {
+        /// <summary>
+        /// Force-moves any characters with the <see cref="UnnamedTweaksCollection_BarathrumiteShelter"/> part to their safe location if they're not there when the Templar arrive.
+        /// This is a failsafe to prevent pathfinding issues from potentially killing anyone who gets stuck upstairs.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(ScriptCallToArmsPart.spawnParties))]
+        static void SpawnPartiesPatch(ScriptCallToArmsPart __instance)
+        {
+            foreach (GameObject go in __instance.ParentObject.CurrentZone.FindObjectsWithPart(nameof(UnnamedTweaksCollection_BarathrumiteShelter)))
+            {
+                UnnamedTweaksCollection_BarathrumiteShelter bs = go.GetPart<UnnamedTweaksCollection_BarathrumiteShelter>();
+                if (go.CurrentCell != bs.SafePlace)
+                    bs.TeleportToSafeSpot();
+            }
+        }
+    }
 
     [HarmonyPatch(typeof(CookingRecipe))]
     class UnnamedTweaksCollection_CookingRecipe

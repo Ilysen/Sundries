@@ -37,7 +37,7 @@ namespace UnnamedTweaksCollection.Scripts
     /// Thus, a tweak named <c>ExampleTweak</c> would correspond to an option whose key is equal to <c>UnnamedTweaksCollection_ExampleTweak</c>.
     /// The naming must be exact for the system to pick up the setting!
     /// </summary>
-    
+
     // The following tweaks can't be disabled right now due to there being no meaningful way to change XML loading depending on conditionals:
     // - Implement the Mindful skill, under the Customs and Folklore tree
     // Once the infrastructure is there, they'll be made toggleable!
