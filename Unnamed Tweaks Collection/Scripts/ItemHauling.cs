@@ -109,7 +109,7 @@ namespace XRL.World.Parts
                 }
                 bool hauled = false;
                 List<GameObject> _toHaul = ToHaul;
-                if (Helpers.TweakSetting(Tweaks.EnableItemHauling) == "All")
+                if (Helpers.GetTweakSetting(Tweaks.EnableItemHauling) == "All")
                     _toHaul = prevCell.GetObjects().Where(x => CanHaul(x)).ToList();
                 foreach (GameObject go in _toHaul.ToArray())
                 {

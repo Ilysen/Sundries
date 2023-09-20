@@ -11,7 +11,7 @@ namespace UnnamedTweaksCollection.Scripts
         [CallAfterGameLoaded]
         public static void AfterLoaded()
         {
-            if (Helpers.TweakSetting(Tweaks.EnableItemHauling) != "Disabled")
+            if (Helpers.GetTweakSetting(Tweaks.EnableItemHauling) != "Disabled")
             {
                 UnnamedTweaksCollection_HaulingHandler haulingHandler = The.Player?.RequirePart<UnnamedTweaksCollection_HaulingHandler>();
                 if (haulingHandler != null && haulingHandler.IsMyActivatedAbilityToggledOn(haulingHandler.ActivatedAbility))
@@ -27,7 +27,7 @@ namespace UnnamedTweaksCollection.Scripts
     {
         public void mutate(GameObject player)
         {
-            if (Helpers.TweakSetting(Tweaks.EnableItemHauling) != "Disabled")
+            if (Helpers.GetTweakSetting(Tweaks.EnableItemHauling) != "Disabled")
                 player.AddPart<UnnamedTweaksCollection_HaulingHandler>();
         }
     }

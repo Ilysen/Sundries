@@ -46,4 +46,20 @@
 	<option ID="UnnamedTweaksCollection_RemoveCellByDefault"
 		DisplayText="Highlight 'remove cell' by default in the replace cell menu"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
+	<option ID="UnnamedTweaksCollection_TreatModdedItemsAsScrap"
+		DisplayText="'Treat as scrap' doesn't consider tinkering mods"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No">
+		<helptext>
+			Vanilla logic treats every modded combination of an item to be separate for the purposes of being scrap; marking a lacquered musket as scrap will only treat future lacquered muskets as scrap rather than every musket, for instance. This disables that behavior.
+		</helptext>
+	</option>
+	<option ID="UnnamedTweaksCollection_TreatRobotLimbsAsScrap"
+		DisplayText="Treat all robot limbs as scrap"
+		Category="Unnamed Tweaks Collection" Type="Combo" Values="None,All But Faces,All" Default="None">
+		<helptext>
+			Vanilla logic considers every robotic limb type (arm, leg, different heads, etc) to be separate for the purposes of being treated as scrap.
+			
+			This overrides the logic so that marking one robotic limb as scrap will treat all robotic limbs from any NPC type as scrap, with an optional setting to prevent faces from being subjected to the override too.
+		</helptext>
+	</option>
 </options>

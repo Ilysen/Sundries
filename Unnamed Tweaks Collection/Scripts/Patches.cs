@@ -4,6 +4,7 @@ using Qud.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnnamedTweaksCollection.Scripts;
 using XRL;
 using XRL.Language;
@@ -11,6 +12,7 @@ using XRL.UI;
 using XRL.World;
 using XRL.World.Capabilities;
 using XRL.World.Parts;
+using XRL.World.Parts.Skill;
 using XRL.World.Skills.Cooking;
 
 namespace UnnamedTweaksCollection.HarmonyPatches
@@ -26,7 +28,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         [HarmonyPatch(nameof(EnergyStorage.GetChargeStatus))]
         static void GetChargeStatusPatch(int Charge, int MaxCharge, string Style, ref string __result)
         {
-            if (!Helpers.TweakEnabled(Tweaks.DifferentiateMaxCells))
+            if (!Helpers.IsTweakEnabled(Tweaks.DifferentiateMaxCells))
                 return;
             if (Charge == MaxCharge)
             {
@@ -51,7 +53,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         static void GenerateRecipeNamePatch(string chef, ref string __result)
         {
             // Player might be null here if the game is still setting up, which can cause cookbooks on the starting map to fail to generate if we don't check for it
-            if (The.Player == null || Helpers.TweakEnabled(Tweaks.NameCarbideChefRecipes) || chef != The.Player.BaseDisplayName)
+            if (The.Player == null || chef != The.Player.BaseDisplayName || !Helpers.IsTweakEnabled(Tweaks.NameCarbideChefRecipes))
                 return;
             Start:
             string newName = Popup.AskString("Name your recipe? Enter nothing to choose randomly instead.");
@@ -81,9 +83,9 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         [HarmonyPatch(nameof(GameObject.ShouldTakeAll))]
         static void ShouldTakeAllPatch(GameObject __instance, ref bool __result)
         {
-            if (!Helpers.TweakEnabled(Tweaks.DontTakeAllJunk))
+            if (!__result || !Helpers.IsTweakEnabled(Tweaks.DontTakeAllJunk))
                 return;
-            if (__result && __instance.HasTag("UnnamedTweaksCollection_NoTakeAll"))
+            if (__instance.HasTag("UnnamedTweaksCollection_NoTakeAll"))
                 __result = false;
         }
 
@@ -94,10 +96,9 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         [HarmonyPatch(nameof(GameObject.CanAutoget))]
         static void CanAutogetPatch(GameObject __instance, ref bool __result)
         {
-            string currentSetting = Helpers.TweakSetting(Tweaks.DontTakeYurlsTreeItMakesThemSad);
-            if (currentSetting.EqualsNoCase("Never"))
+            if (!__result || Helpers.GetTweakSetting(Tweaks.DontTakeYurlsTreeItMakesThemSad, out string currentSetting) == "Never")
                 return;
-            if (__result && __instance.HasTag("UnnamedTweaksCollection_NoAutogetInTowns"))
+            if (__instance.HasTag("UnnamedTweaksCollection_NoAutogetInTowns"))
             {
                 if ((currentSetting.EqualsNoCase("In Towns") && CheckpointingSystem.IsPlayerInCheckpoint()) || currentSetting.EqualsNoCase("Always"))
                     __result = false;
@@ -116,9 +117,9 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         [HarmonyPatch(nameof(LiquidVolume.GetActiveAutogetLiquid))]
         static void GetActiveAutogetLiquidPatch(LiquidVolume __instance, ref string __result)
         {
-            if (!Helpers.TweakEnabled(Tweaks.DontTakeTownWater))
-                return;
             if (__instance.AutoCollectLiquidType != null || __result != "water")
+                return;
+            if (!Helpers.IsTweakEnabled(Tweaks.DontTakeTownWater))
                 return;
             if (CheckpointingSystem.IsPlayerInCheckpoint())
                 __result = null;
@@ -157,7 +158,32 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         // The danger is unleashed only if you substantially disturb this place physically. This place is best shunned and left uninhabited.
         private static int NewShowOptionList(string Title, IList<string> Options, IList<char> Hotkeys, int Spacing, string Intro, int MaxWidth, bool RespectOptionNewlines, bool AllowEscape, int DefaultSelected, string SpacingText, Action<int> onResult, GameObject context, IList<IRenderable> Icons, IRenderable IntroIcon, IList<QudMenuItem> Buttons, bool centerIntro, bool centerIntroIcon, int iconPosition, bool forceNewPopup)
         {
-            return Popup.ShowOptionList(Title, Options, Hotkeys, Spacing, Intro, MaxWidth, RespectOptionNewlines, AllowEscape, Helpers.TweakEnabled(Tweaks.RemoveCellByDefault) ? 0 : DefaultSelected, SpacingText, onResult, context, Icons, IntroIcon, Buttons, centerIntro, centerIntroIcon, iconPosition, forceNewPopup);
+            return Popup.ShowOptionList(Title, Options, Hotkeys, Spacing, Intro, MaxWidth, RespectOptionNewlines, AllowEscape, Helpers.IsTweakEnabled(Tweaks.RemoveCellByDefault) ? 0 : DefaultSelected, SpacingText, onResult, context, Icons, IntroIcon, Buttons, centerIntro, centerIntroIcon, iconPosition, forceNewPopup);
+        }
+    }
+
+    [HarmonyPatch(typeof(Tinkering_Disassemble))]
+    public static class UnnamedTweaksCollection_TinkeringDisassemble
+    {
+        /// <summary>
+        /// Overrides some vanilla logic to make tweaks treat certain item types as the same for determining scrap.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch("ToggleKey")]
+        static void ToggleKeyPatch(GameObject obj, Tinkering_Disassemble __instance, ref string __result)
+        {
+            if (obj.GetBlueprint().InheritsFrom("RobotLimb") && Helpers.GetTweakSetting(Tweaks.TreatRobotLimbsAsScrap, out string setting) != "None")
+            {
+                bool shouldExempt = setting != "All" && obj.GetPart<Armor>()?.WornOn == "Face";
+                if (!shouldExempt)
+                    __result = "RobotLimb";
+            }
+            else if (Helpers.IsTweakEnabled(Tweaks.TreatModdedItemsAsScrap))
+            {
+                MethodInfo dynMethod = typeof(Tinkering_Disassemble).GetMethod("ModProfile", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (dynMethod.Invoke(__instance, new object[] { obj }) is string s && !s.IsNullOrEmpty())
+                    __result = __result.Replace(s, "");
+            }
         }
     }
 }

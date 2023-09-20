@@ -8,17 +8,26 @@ namespace UnnamedTweaksCollection.Scripts
         /// Returns whether or not the given <see cref="Tweaks"/> entry is enabled.
         /// This only applies for checkbox tweaks.
         /// </summary>
-        public static bool TweakEnabled(Tweaks tweakType)
+        public static bool IsTweakEnabled(Tweaks tweakType)
         {
-            return TweakSetting(tweakType).EqualsNoCase("Yes");
+            return GetTweakSetting(tweakType).EqualsNoCase("Yes");
         }
 
         /// <summary>
         /// Fetches the current state of a given tweak's setting, if it has one.
         /// </summary>
-        public static string TweakSetting(Tweaks tweakType)
+        public static string GetTweakSetting(Tweaks tweakType)
         {
             return Options.GetOption($"UnnamedTweaksCollection_{tweakType}");
+        }
+
+        /// <summary>
+        /// As <see cref="GetTweakSetting(Tweaks)"/>, but outputs the setting as a string as well.
+        /// </summary>
+        public static string GetTweakSetting(Tweaks tweakType, out string setting)
+        {
+            setting = Options.GetOption($"UnnamedTweaksCollection_{tweakType}");
+            return setting;
         }
     }
 
@@ -41,6 +50,8 @@ namespace UnnamedTweaksCollection.Scripts
         DontTakeYurlsTreeItMakesThemSad,
         DifferentiateMaxCells,
         EnableItemHauling,
-        RemoveCellByDefault
+        RemoveCellByDefault,
+        TreatModdedItemsAsScrap,
+        TreatRobotLimbsAsScrap
     }
 }
