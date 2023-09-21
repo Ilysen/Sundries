@@ -1,4 +1,6 @@
-﻿using XRL.UI;
+﻿using XRL;
+using XRL.UI;
+using XRL.World;
 
 namespace UnnamedTweaksCollection.Scripts
 {
@@ -28,6 +30,18 @@ namespace UnnamedTweaksCollection.Scripts
         {
             setting = Options.GetOption($"UnnamedTweaksCollection_{tweakType}");
             return setting;
+        }
+
+        public static bool ShouldBlockFromAutogetAndDisassemble(GameObject obj)
+        {
+            if (GetTweakSetting(Tweaks.DontTakeYurlsTreeItMakesThemSad, out string setting) == "Never")
+                return false;
+            if (obj.HasTag("UnnamedTweaksCollection_NoAutogetInTowns"))
+            {
+                if ((setting.EqualsNoCase("In Towns") && CheckpointingSystem.IsPlayerInCheckpoint()) || setting.EqualsNoCase("Always"))
+                    return true;
+            }
+            return false;
         }
     }
 

@@ -116,13 +116,9 @@ namespace UnnamedTweaksCollection.HarmonyPatches
         [HarmonyPatch(nameof(GameObject.CanAutoget))]
         static void CanAutogetPatch(GameObject __instance, ref bool __result)
         {
-            if (!__result || Helpers.GetTweakSetting(Tweaks.DontTakeYurlsTreeItMakesThemSad, out string currentSetting) == "Never")
+            if (!__result || Helpers.GetTweakSetting(Tweaks.DontTakeYurlsTreeItMakesThemSad) == "Never")
                 return;
-            if (__instance.HasTag("UnnamedTweaksCollection_NoAutogetInTowns"))
-            {
-                if ((currentSetting.EqualsNoCase("In Towns") && CheckpointingSystem.IsPlayerInCheckpoint()) || currentSetting.EqualsNoCase("Always"))
-                    __result = false;
-            }
+            __result = !Helpers.ShouldBlockFromAutogetAndDisassemble(__instance);
         }
     }
 
@@ -204,6 +200,17 @@ namespace UnnamedTweaksCollection.HarmonyPatches
                 if (dynMethod.Invoke(__instance, new object[] { obj }) is string s && !s.IsNullOrEmpty())
                     __result = __result.Replace(s, "");
             }
+        }
+
+        /// <summary>
+        /// Prevents decorations (metal folding chair, plastic tree) from being considered scrap based on the setting of <see cref="Tweaks.DontTakeYurlsTreeItMakesThemSad"/>.
+        /// </summary>
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(Tinkering_Disassemble.ConsiderScrap))]
+        static void ConsiderScrapPatch(GameObject obj, ref bool __result)
+        {
+            if (__result)
+                __result = !Helpers.ShouldBlockFromAutogetAndDisassemble(obj);
         }
     }
 }
