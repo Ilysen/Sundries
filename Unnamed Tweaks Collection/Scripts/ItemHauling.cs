@@ -35,15 +35,10 @@ namespace XRL.World.Parts
         private bool CanHaul(GameObject go) => go.IsTakeable() && go.IsValid() && !go.IsInGraveyard() && !go.IsOwned() && go.InInventory == null;
 
         /// <summary>
-        /// Returns how much energy it will cost to move a given <see cref="GameObject"/> through hauling.
-        /// </summary>
-        private int EnergyForItem(GameObject go) => 10 * Math.Max(1, go.Weight);
-
-        /// <summary>
         /// A cached list of <see cref="GameObject"/>s that we're hauling. If <see cref="Tweaks.EnableItemHauling"/> is set to <c>All</c>, this will be updated every turn;
         /// otherwise, it will only be populated once, when hauling starts.
         /// </summary>
-        private readonly List<GameObject> ToHaul = new List<GameObject>();
+        private List<GameObject> ToHaul = new List<GameObject>();
 
         public override void Attach()
         {
@@ -75,21 +70,23 @@ namespace XRL.World.Parts
                     string loadWarning = "";
                     if (!IsHauling)
                     {
-                        int totalLoad = 0;
+                        int totalLoad = 1;
                         foreach (GameObject go in haulables)
                         {
-                            totalLoad += EnergyForItem(go);
+                            totalLoad++;
                             ToHaul.Add(go);
                         }
-                        if (totalLoad >= 2000)
+                        if (totalLoad >= 3)
                             loadWarning = " {{W|Hauling this load will be slow.}}";
-                        if (totalLoad >= 5000)
+                        if (totalLoad >= 5)
                             loadWarning = " {{R|Hauling this load will be very slow.}}";
                     }
                     MessageQueue.AddPlayerMessage("You {{c|" + (!IsHauling ? "start" : "stop") + " hauling items}}." + loadWarning);
                     ToggleMyActivatedAbility(ActivatedAbility, E.Actor, true);
                     if (!IsHauling)
                         ToHaul.Clear();
+                    else
+                        ToHaul = haulables;
                 }
             }
             return base.HandleEvent(E);
@@ -117,12 +114,9 @@ namespace XRL.World.Parts
                         ToHaul.Remove(go);
                     else
                     {
-                        if (E.Actor.TakeObject(go, true, Context: "Hauling") &&
+                        if (E.Actor.TakeObject(go, true, 1000, "Hauling") &&
                             InventoryActionEvent.Check(E.Actor, E.Actor, go, "CommandDropObject", Forced: true, Silent: true))
-                        {
-                            E.Actor.UseEnergy(EnergyForItem(go));
                             hauled = true;
-                        }
                         AutoAct.Interrupt();
                     }
                     if (ToHaul.Count <= 0)
