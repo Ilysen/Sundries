@@ -32,6 +32,13 @@
 		DisplayText="Differentiate fully-charged energy cells"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
 	</option>
+	<option ID="UnnamedTweaksCollection_EnableMassPsychometry"
+		DisplayText="Enable mass pasychometry"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
+		<helptext>
+			When enabled, activating the Psychometry ability will prompt you to perform psychometry on every valid object in your inventory, rather than instructing you to check the context menu on individual objects. The context menu entry is still there, of course!
+		</helptext>
+	</option>
 	<option ID="UnnamedTweaksCollection_EnableItemHauling"
 		DisplayText="Item hauling behavior"
 		Category="Unnamed Tweaks Collection" Type="Combo" Values="Disabled,Cached,All" Default="Disabled">

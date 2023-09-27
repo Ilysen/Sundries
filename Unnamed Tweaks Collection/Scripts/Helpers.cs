@@ -63,7 +63,8 @@ namespace UnnamedTweaksCollection.Scripts
         DontTakeTownWater,
         DontTakeYurlsTreeItMakesThemSad,
         DifferentiateMaxCells,
-        EnableItemHauling,
+		EnableMassPsychometry,
+		EnableItemHauling,
         RemoveCellByDefault,
         TreatModdedItemsAsScrap,
         TreatRobotLimbsAsScrap
