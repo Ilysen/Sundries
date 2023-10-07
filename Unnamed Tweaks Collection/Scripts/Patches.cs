@@ -1,11 +1,11 @@
-﻿using ConsoleLib.Console;
+﻿using Ava.UnnamedTweaksCollection.Scripts;
+using ConsoleLib.Console;
 using HarmonyLib;
 using Qud.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnnamedTweaksCollection.Scripts;
 using XRL;
 using XRL.Language;
 using XRL.UI;
@@ -19,7 +19,7 @@ using XRL.World.Skills.Cooking;
 namespace UnnamedTweaksCollection.HarmonyPatches
 {
 	[HarmonyPatch(typeof(EnergyStorage))]
-	class UnnamedTweaksCollection_EnergyStorage
+	class Ava_UnnamedTweaksCollection_EnergyStorage
 	{
 		/// <summary>
 		/// Designates completely charged energy cells as Max.
@@ -44,19 +44,19 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(ScriptCallToArmsPart))]
-	class UnnamedTweaksCollection_ScriptCallToArmsPart
+	class Ava_UnnamedTweaksCollection_ScriptCallToArmsPart
 	{
 		/// <summary>
-		/// Force-moves any characters with the <see cref="UnnamedTweaksCollection_BarathrumiteShelter"/> part to their safe location if they're not there when the Templar arrive.
+		/// Force-moves any characters with the <see cref="Ava_UnnamedTweaksCollection_BarathrumiteShelter"/> part to their safe location if they're not there when the Templar arrive.
 		/// This is a failsafe to prevent pathfinding issues from potentially killing anyone who gets stuck upstairs.
 		/// </summary>
 		[HarmonyPostfix]
 		[HarmonyPatch(nameof(ScriptCallToArmsPart.spawnParties))]
 		static void SpawnPartiesPatch(ScriptCallToArmsPart __instance)
 		{
-			foreach (GameObject go in __instance.ParentObject.CurrentZone.FindObjectsWithPart(nameof(UnnamedTweaksCollection_BarathrumiteShelter)))
+			foreach (GameObject go in __instance.ParentObject.CurrentZone.FindObjectsWithPart(nameof(Ava_UnnamedTweaksCollection_BarathrumiteShelter)))
 			{
-				UnnamedTweaksCollection_BarathrumiteShelter bs = go.GetPart<UnnamedTweaksCollection_BarathrumiteShelter>();
+				Ava_UnnamedTweaksCollection_BarathrumiteShelter bs = go.GetPart<Ava_UnnamedTweaksCollection_BarathrumiteShelter>();
 				if (go.CurrentCell != bs.SafePlace)
 					bs.TeleportToSafeSpot();
 			}
@@ -64,7 +64,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(CookingRecipe))]
-	class UnnamedTweaksCollection_CookingRecipe
+	class Ava_UnnamedTweaksCollection_CookingRecipe
 	{
 		/// <summary>
 		/// Postfixes logic allowing the player to choose names for their own Carbide Chef recipes.
@@ -95,7 +95,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(GameObject))]
-	class UnnamedTweaksCollection_GameObject
+	class Ava_UnnamedTweaksCollection_GameObject
 	{
 		/// <summary>
 		/// Adds logic preventing items with the proper tag from being picked up by Take All.
@@ -106,7 +106,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 		{
 			if (!__result || !Helpers.IsTweakEnabled(Tweaks.DontTakeAllJunk))
 				return;
-			if (__instance.HasTag("UnnamedTweaksCollection_NoTakeAll"))
+			if (__instance.HasTag("Ava_UnnamedTweaksCollection_NoTakeAll"))
 				__result = false;
 		}
 
@@ -124,10 +124,10 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(LiquidVolume))]
-	class UnnamedTweaksCollection_LiquidVolume
+	class Ava_UnnamedTweaksCollection_LiquidVolume
 	{
 		/// <summary>
-		/// Prevents the auto-collection of fresh water in towns, even if the option is enabled. It's just the considerate thing to do!~
+		/// Prevents the auto-collection of fresh water in towns, even if the vanilla option to do so is enabled. It's just the considerate thing to do!~
 		/// We check for towns by seeing if the player is in a screen that has a checkpoint. This isn't perfect, but it covers most of our bases.
 		/// </summary>
 		[HarmonyPostfix]
@@ -144,7 +144,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(EnergyCellSocket), nameof(EnergyCellSocket.AttemptReplaceCell))]
-	public static class UnnamedTweaksCollection_EnergyCellSocket
+	public static class Ava_UnnamedTweaksCollection_EnergyCellSocket
 	{
 		/// <summary>
 		/// Causes the "replace cell" menu to default to the option to remove a cell, like it was before version 204.98.
@@ -157,7 +157,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 			{
 				if (codes[i].Calls(AccessTools.Method(typeof(Popup), nameof(Popup.ShowOptionList))))
 				{
-					codes[i] = CodeInstruction.Call(typeof(UnnamedTweaksCollection_EnergyCellSocket), nameof(NewShowOptionList));
+					codes[i] = CodeInstruction.Call(typeof(Ava_UnnamedTweaksCollection_EnergyCellSocket), nameof(NewShowOptionList));
 					break;
 				}
 			}
@@ -180,7 +180,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(Psychometry))]
-	public static class UnnamedTweaksCollection_Psychometry
+	public static class Ava_UnnamedTweaksCollection_Psychometry
 	{
 		/// <summary>
 		/// Overrides the base activated ability for Psychometry to attempt to analyze every valid artifact in the user's inventory.
@@ -213,13 +213,13 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 							InventoryActionEvent.Check(ply, ply, go, "Psychometry");
 					}
 				}
-				E.ID = "PsychometryMenuResolved";
+				E.ID = "Ava_UnnamedTweaksCollection_PsychometryMenuResolved";
 			}
 		}
 	}
 
 	[HarmonyPatch(typeof(Tinkering_Disassemble))]
-	public static class UnnamedTweaksCollection_TinkeringDisassemble
+	public static class Ava_UnnamedTweaksCollection_TinkeringDisassemble
 	{
 		/// <summary>
 		/// Overrides some vanilla logic to make tweaks treat certain item types as the same for determining scrap.

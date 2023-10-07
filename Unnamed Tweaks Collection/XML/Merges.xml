@@ -1,24 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <objects>
 	<object Name="BaseStone" Load="Merge">
-		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
+		<tag Name="Ava_UnnamedTweaksCollection_NoTakeAll" />
 	</object>
 	<object Name="Bedroll" Load="Merge">
-		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
+		<tag Name="Ava_UnnamedTweaksCollection_NoTakeAll" />
 	</object>
 	<object Name="Bones" Load="Merge">
-		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
+		<tag Name="Ava_UnnamedTweaksCollection_NoTakeAll" />
 	</object>
 	<object Name="Flowers" Load="Merge">
-		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
+		<tag Name="Ava_UnnamedTweaksCollection_NoTakeAll" />
 	</object>
 	<object Name="Garbage" Load="Merge">
-		<tag Name="UnnamedTweaksCollection_NoTakeAll" />
+		<tag Name="Ava_UnnamedTweaksCollection_NoTakeAll" />
 	</object>
 	<object Name="FoldingChair" Load="Merge">
-		<tag Name="UnnamedTweaksCollection_NoAutogetInTowns" />
+		<tag Name="Ava_UnnamedTweaksCollection_NoAutogetInTowns" />
 	</object>
 	<object Name="PlasticTree" Load="Merge">
-		<tag Name="UnnamedTweaksCollection_NoAutogetInTowns" />
+		<tag Name="Ava_UnnamedTweaksCollection_NoAutogetInTowns" />
 	</object>
 </objects>

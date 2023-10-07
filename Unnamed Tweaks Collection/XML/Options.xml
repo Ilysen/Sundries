@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <options>
-	<option ID="UnnamedTweaksCollection_NameCarbideChefRecipes"
+	<option ID="Ava_UnnamedTweaksCollection_NameCarbideChefRecipes"
 		DisplayText="Allow naming of Carbide Chef recipes" Category="Unnamed Tweaks Collection"
 		Type="Checkbox" Default="Yes">
 		<helptext>
 			{{W|Due to code limitations, existing recipes are sadly unaffected.}}
 		</helptext>
 	</option>
-	<option ID="UnnamedTweaksCollection_DontTakeYurlsTreeItMakesThemSad"
+	<option ID="Ava_UnnamedTweaksCollection_DontTakeYurlsTreeItMakesThemSad"
 		DisplayText="Block auto-collection of decorations"
 		Category="Unnamed Tweaks Collection" Type="Combo" Values="Never,In Towns,Always" Default="In Towns">
 		<helptext>
@@ -16,10 +16,10 @@
 			{{W|Only applies to newly-generated objects.}}
 		</helptext>
 	</option>
-	<option ID="UnnamedTweaksCollection_DontTakeTownWater"
+	<option ID="Ava_UnnamedTweaksCollection_DontTakeTownWater"
 		DisplayText="Block auto-collection of fresh water in towns"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
-	<option ID="UnnamedTweaksCollection_DontTakeAllJunk"
+	<option ID="Ava_UnnamedTweaksCollection_DontTakeAllJunk"
 		DisplayText="Block junk from Take All"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
 		<helptext>
@@ -28,18 +28,18 @@
 			{{W|Only applies to newly-generated objects.}}
 		</helptext>
 	</option>
-	<option ID="UnnamedTweaksCollection_DifferentiateMaxCells"
+	<option ID="Ava_UnnamedTweaksCollection_DifferentiateMaxCells"
 		DisplayText="Differentiate fully-charged energy cells"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
 	</option>
-	<option ID="UnnamedTweaksCollection_EnableMassPsychometry"
+	<option ID="Ava_UnnamedTweaksCollection_EnableMassPsychometry"
 		DisplayText="Enable mass pasychometry"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
 		<helptext>
 			When enabled, activating the Psychometry ability will prompt you to perform psychometry on every valid object in your inventory, rather than instructing you to check the context menu on individual objects. The context menu entry is still there, of course!
 		</helptext>
 	</option>
-	<option ID="UnnamedTweaksCollection_EnableItemHauling"
+	<option ID="Ava_UnnamedTweaksCollection_EnableItemHauling"
 		DisplayText="Item hauling behavior"
 		Category="Unnamed Tweaks Collection" Type="Combo" Values="Disabled,Cached,All" Default="Disabled">
 		<helptext>
@@ -50,17 +50,17 @@
 			{{W|All:}} You haul all objects beneath you, even if they weren't present when you started.
 		</helptext>
 	</option>
-	<option ID="UnnamedTweaksCollection_RemoveCellByDefault"
+	<option ID="Ava_UnnamedTweaksCollection_RemoveCellByDefault"
 		DisplayText="Highlight 'remove cell' by default in the replace cell menu"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
-	<option ID="UnnamedTweaksCollection_TreatModdedItemsAsScrap"
+	<option ID="Ava_UnnamedTweaksCollection_TreatModdedItemsAsScrap"
 		DisplayText="'Treat as scrap' doesn't consider tinkering mods"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No">
 		<helptext>
 			Vanilla logic treats every modded combination of an item to be separate for the purposes of being scrap; marking a lacquered musket as scrap will only treat future lacquered muskets as scrap rather than every musket, for instance. This disables that behavior.
 		</helptext>
 	</option>
-	<option ID="UnnamedTweaksCollection_TreatRobotLimbsAsScrap"
+	<option ID="Ava_UnnamedTweaksCollection_TreatRobotLimbsAsScrap"
 		DisplayText="Treat all robot limbs as scrap"
 		Category="Unnamed Tweaks Collection" Type="Combo" Values="None,All But Faces,All" Default="None">
 		<helptext>

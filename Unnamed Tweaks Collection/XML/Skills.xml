@@ -2,7 +2,7 @@
 <skills Load="Merge">
 	<skill Name="Customs and Folklore" Load="Merge">
 		<power Name="Mindful" Cost="200" Attribute="Intelligence" Minimum="19"
-			Class="UnnamedTweaksCollection_Customs_Mindful" Prereq="Customs_Tactful"
+			Class="Ava_UnnamedTweaksCollection_Customs_Mindful" Prereq="Customs_Tactful"
 			Snippet="being mindful"
 			Description="Whenever you begin the water ritual with a new creature, you can reduce the reputation penalty with one faction that dislikes or hates them by 25. If you purchase this power after you treat with a creature, it activates the next time you treat with them." />
 	</skill>

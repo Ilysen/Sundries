@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <activatedabilities>
-	<ability Command="UnnamedTweaksCollection_ToggleHaul">
+	<ability Command="Ava_UnnamedTweaksCollection_ToggleHaul">
 		<description>
 			<p>Move items along the ground without picking them up.</p>
 			<p>Can only be used with items beneath you.</p>
