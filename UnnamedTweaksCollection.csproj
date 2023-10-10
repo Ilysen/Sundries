@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D1D6726B-AC6A-4A5E-A262-44711648889D}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>UnnamedTweaksCollection</RootNamespace>
+    <RootNamespace>Ava.UnnamedTweaksCollection</RootNamespace>
     <AssemblyName>UnnamedTweaksCollection</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Unnamed Tweaks Collection\manifest.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -50,21 +51,23 @@
       <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Caves of Qud\CoQ_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Compile Include="Scripts\Helpers.cs" />
-    <Compile Include="Scripts\ItemHauling.cs" />
-    <Compile Include="Scripts\LoadGameHandler.cs" />
-    <Compile Include="Scripts\Patches.cs" />
-    <Compile Include="Scripts\BarathrumiteShelter.cs" />
-    <Compile Include="Scripts\Customs_Mindful.cs" />
+    <Content Include="Unnamed Tweaks Collection\preview.png" />
+    <Content Include="Unnamed Tweaks Collection\Textures\Abilities\abil_haul_toggle_off.png" />
+    <Content Include="Unnamed Tweaks Collection\Textures\Abilities\abil_haul_toggle_on.png" />
+    <Content Include="Unnamed Tweaks Collection\XML\Abilities.xml" />
+    <Content Include="Unnamed Tweaks Collection\XML\Conversations.xml" />
+    <Content Include="Unnamed Tweaks Collection\XML\Merges.xml" />
+    <Content Include="Unnamed Tweaks Collection\XML\Options.xml" />
+    <Content Include="Unnamed Tweaks Collection\XML\Skills.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="XML\Abilities.xml" />
-    <Content Include="XML\Conversations.xml" />
-    <Content Include="XML\Merges.xml" />
-    <Content Include="XML\Options.xml" />
-    <Content Include="XML\Skills.xml" />
+    <Compile Include="Unnamed Tweaks Collection\Scripts\BarathrumiteShelter.cs" />
+    <Compile Include="Unnamed Tweaks Collection\Scripts\Customs_Mindful.cs" />
+    <Compile Include="Unnamed Tweaks Collection\Scripts\Helpers.cs" />
+    <Compile Include="Unnamed Tweaks Collection\Scripts\ItemHauling.cs" />
+    <Compile Include="Unnamed Tweaks Collection\Scripts\LoadGameHandler.cs" />
+    <Compile Include="Unnamed Tweaks Collection\Scripts\Patches.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
