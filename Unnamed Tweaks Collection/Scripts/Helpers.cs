@@ -64,9 +64,11 @@ namespace Ava.UnnamedTweaksCollection.Scripts
 		DontTakeTownWater,
 		DontTakeYurlsTreeItMakesThemSad,
 		DifferentiateMaxCells,
+		DisableGeomagneticDiscAnimation,
 		EnableMassPsychometry,
 		EnableItemHauling,
 		RemoveCellByDefault,
+		ShowProselytizeMath,
 		TreatModdedItemsAsScrap,
 		TreatRobotLimbsAsScrap
 	}

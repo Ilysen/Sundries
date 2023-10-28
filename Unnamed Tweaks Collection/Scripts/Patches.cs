@@ -6,11 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using XRL;
 using XRL.Language;
 using XRL.UI;
 using XRL.World;
 using XRL.World.Capabilities;
+using XRL.World.Effects;
 using XRL.World.Parts;
 using XRL.World.Parts.Mutation;
 using XRL.World.Parts.Skill;
@@ -143,13 +145,14 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 		}
 	}
 
-	[HarmonyPatch(typeof(EnergyCellSocket), nameof(EnergyCellSocket.AttemptReplaceCell))]
+	[HarmonyPatch(typeof(EnergyCellSocket))]
 	public static class Ava_UnnamedTweaksCollection_EnergyCellSocket
 	{
 		/// <summary>
 		/// Causes the "replace cell" menu to default to the option to remove a cell, like it was before version 204.98.
 		/// </summary>
 		[HarmonyTranspiler]
+		[HarmonyPatch(nameof(EnergyCellSocket.AttemptReplaceCell))]
 		public static IEnumerable<CodeInstruction> AttemptReplaceCellTranspiler(IEnumerable<CodeInstruction> instructions)
 		{
 			var codes = new List<CodeInstruction>(instructions);
@@ -187,12 +190,12 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 		/// This patch is slightly destructive, but the base ability does nothing except throw a popup, so at the very least it isn't throwing out too much of importance.
 		/// </summary>
 		[HarmonyPrefix]
-		[HarmonyPatch(nameof(Psychometry.FireEvent))]
-		static void FireEventPatch(Event E, Psychometry __instance)
+		[HarmonyPatch(nameof(Psychometry.HandleEvent), new Type[] { typeof(CommandEvent) })]
+		static void HandleEventPatch(CommandEvent E, Psychometry __instance)
 		{
 			if (!Helpers.IsTweakEnabled(Tweaks.EnableMassPsychometry))
 				return;
-			if (E.ID == "CommandPsychometryMenu")
+			if (E.Command == "CommandPsychometryMenu")
 			{
 				GameObject ply = __instance.ParentObject;
 				if (!ply.HasSkill("Tinkering"))
@@ -213,7 +216,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 							InventoryActionEvent.Check(ply, ply, go, "Psychometry");
 					}
 				}
-				E.ID = "Ava_UnnamedTweaksCollection_PsychometryMenuResolved";
+				E.Command = "Ava_UnnamedTweaksCollection_PsychometryMenuResolved";
 			}
 		}
 	}
@@ -252,5 +255,99 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 			if (__result)
 				__result = !Helpers.ShouldBlockFromAutogetAndDisassemble(obj);
 		}
+	}
+
+	[HarmonyPatch(typeof(GeomagneticDisc))]
+	public static class Ava_UnnamedTweaksCollection_GeomagneticDisc
+	{
+		/// <summary>
+		/// Fully disables the animation for throwing a geomagnetic disc, which can become very slow on crowded screens.
+		/// </summary>
+		[HarmonyTranspiler]
+		[HarmonyPatch("DoThrow")]
+		public static IEnumerable<CodeInstruction> DoThrowTranspiler(IEnumerable<CodeInstruction> instructions)
+		{
+			// This transpiler effectively replaces this code:
+			//   flag = Actor.CurrentZone.IsActive()
+			// With this code:
+			//   flag = Ava_UnnamedTweaksCollection_GeomagneticDisc.ShouldAllowAnimation(Actor)
+			// The transpiler always overrides the new method, but that method returns a value equivalent to the old one if the tweak is disabled.
+
+			var codes = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < codes.Count; i++)
+			{
+				if (codes[i].opcode == OpCodes.Ldarg_1 &&
+					codes[i + 2].Calls(AccessTools.Method(typeof(Zone), nameof(Zone.IsActive))))
+				{
+					codes.RemoveRange(i, 3);
+					codes.Insert(i, CodeInstruction.Call(typeof(Ava_UnnamedTweaksCollection_GeomagneticDisc), nameof(ShouldAllowAnimation)));
+					codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
+					break;
+				}
+			}
+			return codes.AsEnumerable();
+		}
+
+		private static bool ShouldAllowAnimation(GameObject Actor) => !Helpers.IsTweakEnabled(Tweaks.DisableGeomagneticDiscAnimation) && Actor.CurrentZone.IsActive();
+	}
+
+	[HarmonyPatch(typeof(Persuasion_Proselytize))]
+	public static class Ava_UnnamedTweaksCollection_PersuasionProselytize
+	{
+		/// <summary>
+		/// Causes failed proselytization attempts to break down and display the math that went into it.
+		/// We have to recalculate the numbers here, so future updates might make this inaccurate.
+		/// </summary>
+		[HarmonyTranspiler]
+		[HarmonyPatch(nameof(Persuasion_Proselytize.Proselytize))]
+		public static IEnumerable<CodeInstruction> DoThrowTranspiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var codes = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < codes.Count; i++)
+			{
+				if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s && s.Contains(" unconvinced by your pleas"))
+				{
+					codes[i] = CodeInstruction.Call(typeof(Ava_UnnamedTweaksCollection_PersuasionProselytize), nameof(AssembleText));
+					codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
+					break;
+				}
+			}
+			return codes.AsEnumerable();
+		}
+
+		/// <summary>
+		/// Assembles 
+		/// </summary>
+		private static string AssembleText(MentalAttackEvent E)
+		{
+			string toReturn = " unconvinced by your pleas.";
+			if (Helpers.IsTweakEnabled(Tweaks.ShowProselytizeMath))
+			{
+				var toAdd = new List<string>();
+				Beguiled b = E.Defender.GetEffect<Beguiled>();
+				int atkModifier = E.Attacker.StatMod("Ego", 0);
+				int defModifier = (E.Defender.HasEffect<Proselytized>() ? 1 : 0) + (E.Defender.HasEffect<Rebuked>() ? 1 : 0) + (b != null ? b.LevelApplied : 0);
+				int levelDifference = Math.Max(E.Defender.Stat("Level", 0) - E.Attacker.Stat("Level", 0), 0);
+
+				var difficultyFactors = new List<string>();
+				if (levelDifference != 0)
+					difficultyFactors.Add($"{levelDifference} levels in difference");
+				if (defModifier != 0)
+					difficultyFactors.Add($"{defModifier} from existing deffects");
+				if (difficultyFactors.Count > 0)
+					difficultyFactors.Insert(0, $"{E.Difficulty - levelDifference - defModifier} base difficulty");
+
+				toReturn += $" ({E.Dice}{(atkModifier != 0 ? $" + {atkModifier}" : null)} vs. {E.Difficulty}{(difficultyFactors.Count > 0 ? $"; {string.Join(" + ", difficultyFactors)}" : "")})";
+				if (2 + atkModifier < E.Difficulty + defModifier)
+					toReturn += "\n\n{{R|Impossible by " + ((E.Difficulty + defModifier) - (2 + atkModifier)) + "}}";
+				else
+				{
+					int requiredRoll = 8 - ((2 + atkModifier) - (E.Difficulty + defModifier));
+					toReturn += "\n\n{{G|Succeeds on a d8 roll of " + requiredRoll + (requiredRoll == 8 ? "" : " or higher") + "}}";
+				}
+			}
+			return toReturn;
+		}
+
 	}
 }

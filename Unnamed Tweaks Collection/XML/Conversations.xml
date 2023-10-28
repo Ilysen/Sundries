@@ -28,7 +28,7 @@
 				
 				Good luck.
 			</text>
-			<choice GotoID="End" Execute="XRL.World.Parts.UnnamedTweaksCollection_BarathrumiteShelter:HitTheBricks" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Thank you, Otho. I'll need it.</choice>
+			<choice GotoID="End" Execute="XRL.World.Parts.Ava_UnnamedTweaksCollection_BarathrumiteShelter:HitTheBricks" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Thank you, Otho. I'll need it.</choice>
 		</node>
 	</conversation>
 </conversations>

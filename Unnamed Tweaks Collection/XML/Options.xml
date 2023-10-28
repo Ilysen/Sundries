@@ -35,6 +35,10 @@
 			Vanilla logic displays all power cells above 75% charge as {{G|Full}}, even if they aren't at cap. This tweak makes cells at 100% charge appear as {{G|Max}}; anything between 75% and 100% still appears as {{G|Full}} like usual.
 		</helptext>
 	</option>
+	<option ID="Ava_UnnamedTweaksCollection_DisableGeomagneticDiscAnimation"
+		DisplayText="Disable geomagnetic disc animation"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No">
+	</option>
 	<option ID="Ava_UnnamedTweaksCollection_EnableMassPsychometry"
 		DisplayText="Enable mass psychometry"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">
@@ -55,6 +59,9 @@
 	</option>
 	<option ID="Ava_UnnamedTweaksCollection_RemoveCellByDefault"
 		DisplayText="Highlight 'remove cell' by default in the replace cell menu"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
+	<option ID="Ava_UnnamedTweaksCollection_ShowProselytizeMath"
+		DisplayText="Show math on failed Proselytize attempts"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No"></option>
 	<option ID="Ava_UnnamedTweaksCollection_TreatModdedItemsAsScrap"
 		DisplayText="'Treat as scrap' doesn't consider tinkering mods"
