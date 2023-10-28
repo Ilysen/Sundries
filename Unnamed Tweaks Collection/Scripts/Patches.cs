@@ -331,13 +331,18 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 
 				var difficultyFactors = new List<string>();
 				if (levelDifference != 0)
-					difficultyFactors.Add($"{levelDifference} levels in difference");
+					difficultyFactors.Add("{{rules|" + levelDifference + "}} levels higher than you");
 				if (defModifier != 0)
-					difficultyFactors.Add($"{defModifier} from existing deffects");
+					difficultyFactors.Add("{{rules|" + defModifier + "}} from existing effects");
 				if (difficultyFactors.Count > 0)
-					difficultyFactors.Insert(0, $"{E.Difficulty - levelDifference - defModifier} base difficulty");
+					difficultyFactors.Insert(0, "{{rules|" + (E.Difficulty - levelDifference - defModifier) + "}} base difficulty");
 
-				toReturn += $" ({E.Dice}{(atkModifier != 0 ? $" + {atkModifier}" : null)} vs. {E.Difficulty}{(difficultyFactors.Count > 0 ? $"; {string.Join(" + ", difficultyFactors)}" : "")})";
+				string atkDescriptor = string.Empty;
+				int calcMod = atkModifier - 6;
+				if (calcMod != 0)
+					atkDescriptor = calcMod > 1 ? $"+{calcMod}" : calcMod.ToString();
+
+				toReturn += " ({{rules|" + E.Dice.Replace("-6", atkDescriptor) + "}} vs. {{rules|" + E.Difficulty + "}}" + (difficultyFactors.Count > 0 ? $"; {string.Join(" + ", difficultyFactors)})" : ")");
 				if (2 + atkModifier < E.Difficulty + defModifier)
 					toReturn += "\n\n{{R|Impossible by " + ((E.Difficulty + defModifier) - (2 + atkModifier)) + "}}";
 				else
