@@ -39,6 +39,10 @@
 		DisplayText="Disable geomagnetic disc animation"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No">
 	</option>
+	<option ID="Ava_UnnamedTweaksCollection_DisableItemNaming"
+		DisplayText="Disable item naming inspirations"
+		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="No">
+	</option>
 	<option ID="Ava_UnnamedTweaksCollection_EnableMassPsychometry"
 		DisplayText="Enable mass psychometry"
 		Category="Unnamed Tweaks Collection" Type="Checkbox" Default="Yes">

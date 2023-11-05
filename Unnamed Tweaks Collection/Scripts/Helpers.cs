@@ -65,6 +65,7 @@ namespace Ava.UnnamedTweaksCollection.Scripts
 		DontTakeYurlsTreeItMakesThemSad,
 		DifferentiateMaxCells,
 		DisableGeomagneticDiscAnimation,
+		DisableItemNaming,
 		EnableMassPsychometry,
 		EnableItemHauling,
 		RemoveCellByDefault,

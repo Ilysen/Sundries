@@ -21,8 +21,21 @@ using XRL.World.ZoneParts;
 
 namespace UnnamedTweaksCollection.HarmonyPatches
 {
+	[HarmonyPatch(typeof(ItemNaming))]
+	class ItemNamingPatch
+	{
+		[HarmonyPrefix]
+		[HarmonyPatch(nameof(ItemNaming.Opportunity))]
+		static bool OpportunityPatch()
+		{
+			if (Helpers.IsTweakEnabled(Tweaks.DisableItemNaming))
+				return false;
+			return true;
+		}
+	}
+
 	[HarmonyPatch(typeof(EnergyStorage))]
-	class Ava_UnnamedTweaksCollection_EnergyStorage
+	class EnergyStoragePatch
 	{
 		/// <summary>
 		/// Designates completely charged energy cells as Max.
@@ -47,7 +60,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(ScriptCallToArms))]
-	class Ava_UnnamedTweaksCollection_ScriptCallToArms
+	class ScriptCallToArmsPatch
 	{
 		/// <summary>
 		/// Force-moves any characters with the <see cref="Ava_UnnamedTweaksCollection_BarathrumiteShelter"/> part to their safe location if they're not there when the Templar arrive.
@@ -67,7 +80,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(CookingRecipe))]
-	class Ava_UnnamedTweaksCollection_CookingRecipe
+	class CookingRecipePatch
 	{
 		/// <summary>
 		/// Postfixes logic allowing the player to choose names for their own Carbide Chef recipes.
@@ -98,7 +111,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(GameObject))]
-	class Ava_UnnamedTweaksCollection_GameObject
+	class GameObjectPatch
 	{
 		/// <summary>
 		/// Adds logic preventing items with the proper tag from being picked up by Take All.
@@ -127,7 +140,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(LiquidVolume))]
-	class Ava_UnnamedTweaksCollection_LiquidVolume
+	class LiquidVolumePatch
 	{
 		/// <summary>
 		/// Prevents the auto-collection of fresh water in towns, even if the vanilla option to do so is enabled. It's just the considerate thing to do!~
@@ -147,7 +160,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(EnergyCellSocket))]
-	public static class Ava_UnnamedTweaksCollection_EnergyCellSocket
+	public static class EnergyCellSocketPatch
 	{
 		/// <summary>
 		/// Causes the "replace cell" menu to default to the option to remove a cell, like it was before version 204.98.
@@ -161,7 +174,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 			{
 				if (codes[i].Calls(AccessTools.Method(typeof(Popup), nameof(Popup.ShowOptionList))))
 				{
-					codes[i] = CodeInstruction.Call(typeof(Ava_UnnamedTweaksCollection_EnergyCellSocket), nameof(NewShowOptionList));
+					codes[i] = CodeInstruction.Call(typeof(EnergyCellSocketPatch), nameof(NewShowOptionList));
 					break;
 				}
 			}
@@ -184,7 +197,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(Psychometry))]
-	public static class Ava_UnnamedTweaksCollection_Psychometry
+	public static class PsychometryPatch
 	{
 		/// <summary>
 		/// Overrides the base activated ability for Psychometry to attempt to analyze every valid artifact in the user's inventory.
@@ -223,7 +236,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(Tinkering_Disassemble))]
-	public static class Ava_UnnamedTweaksCollection_TinkeringDisassemble
+	public static class TinkeringDisassemblePatch
 	{
 		/// <summary>
 		/// Overrides some vanilla logic to make tweaks treat certain item types as the same for determining scrap.
@@ -259,7 +272,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(GeomagneticDisc))]
-	public static class Ava_UnnamedTweaksCollection_GeomagneticDisc
+	public static class GeomagneticDiscPatch
 	{
 		/// <summary>
 		/// Fully disables the animation for throwing a geomagnetic disc, which can become very slow on crowded screens.
@@ -281,7 +294,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 					codes[i + 2].Calls(AccessTools.Method(typeof(Zone), nameof(Zone.IsActive))))
 				{
 					codes.RemoveRange(i, 3);
-					codes.Insert(i, CodeInstruction.Call(typeof(Ava_UnnamedTweaksCollection_GeomagneticDisc), nameof(ShouldAllowAnimation)));
+					codes.Insert(i, CodeInstruction.Call(typeof(GeomagneticDiscPatch), nameof(ShouldAllowAnimation)));
 					codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
 					break;
 				}
@@ -293,7 +306,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 	}
 
 	[HarmonyPatch(typeof(Persuasion_Proselytize))]
-	public static class Ava_UnnamedTweaksCollection_PersuasionProselytize
+	public static class PersuasionProselytizePatch
 	{
 		/// <summary>
 		/// Causes failed proselytization attempts to break down and display the math that went into it.
@@ -308,7 +321,7 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 			{
 				if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s && s.Contains(" unconvinced by your pleas"))
 				{
-					codes[i] = CodeInstruction.Call(typeof(Ava_UnnamedTweaksCollection_PersuasionProselytize), nameof(AssembleText));
+					codes[i] = CodeInstruction.Call(typeof(PersuasionProselytizePatch), nameof(AssembleText));
 					codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_0));
 					break;
 				}
@@ -316,9 +329,6 @@ namespace UnnamedTweaksCollection.HarmonyPatches
 			return codes.AsEnumerable();
 		}
 
-		/// <summary>
-		/// Assembles 
-		/// </summary>
 		private static string AssembleText(MentalAttackEvent E)
 		{
 			string toReturn = " unconvinced by your pleas.";
