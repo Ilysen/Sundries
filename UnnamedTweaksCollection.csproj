@@ -59,11 +59,9 @@
     <Content Include="Unnamed Tweaks Collection\XML\Conversations.xml" />
     <Content Include="Unnamed Tweaks Collection\XML\Merges.xml" />
     <Content Include="Unnamed Tweaks Collection\XML\Options.xml" />
-    <Content Include="Unnamed Tweaks Collection\XML\Skills.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Unnamed Tweaks Collection\Scripts\BarathrumiteShelter.cs" />
-    <Compile Include="Unnamed Tweaks Collection\Scripts\Customs_Mindful.cs" />
     <Compile Include="Unnamed Tweaks Collection\Scripts\Helpers.cs" />
     <Compile Include="Unnamed Tweaks Collection\Scripts\ItemHauling.cs" />
     <Compile Include="Unnamed Tweaks Collection\Scripts\LoadGameHandler.cs" />
