@@ -70,15 +70,9 @@ namespace XRL.World.Parts
 					string loadWarning = "";
 					if (!IsHauling)
 					{
-						int totalLoad = 1;
-						foreach (GameObject go in haulables)
-						{
-							totalLoad++;
-							ToHaul.Add(go);
-						}
-						if (totalLoad >= 3)
+						if (haulables.Count >= 3)
 							loadWarning = " {{W|Hauling this load will be slow.}}";
-						if (totalLoad >= 5)
+						if (haulables.Count >= 5)
 							loadWarning = " {{R|Hauling this load will be very slow.}}";
 					}
 					MessageQueue.AddPlayerMessage("You {{c|" + (!IsHauling ? "start" : "stop") + " hauling items}}." + loadWarning);
@@ -114,7 +108,7 @@ namespace XRL.World.Parts
 						ToHaul.Remove(go);
 					else
 					{
-						if (E.Actor.TakeObject(go, true, 1000, "Hauling") &&
+						if (E.Actor.TakeObject(go, Silent: true, EnergyCost: 1000) &&
 							InventoryActionEvent.Check(E.Actor, E.Actor, go, "CommandDropObject", Forced: true, Silent: true))
 							hauled = true;
 						AutoAct.Interrupt();
