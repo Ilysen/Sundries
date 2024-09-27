@@ -1,8 +1,9 @@
-﻿using XRL;
+﻿using Ceres.Sundries.Scripts;
+using XRL;
 using XRL.World;
 using XRL.World.Parts;
 
-namespace Ava.UnnamedTweaksCollection.Scripts
+namespace Ceres.Sundries.Scripts
 {
 	[HasCallAfterGameLoaded]
 	public class LoadGameHandler
@@ -12,12 +13,12 @@ namespace Ava.UnnamedTweaksCollection.Scripts
 		{
 			if (Helpers.GetTweakSetting(Tweaks.EnableItemHauling) != "Disabled")
 			{
-				Ava_UnnamedTweaksCollection_HaulingHandler haulingHandler = The.Player?.RequirePart<Ava_UnnamedTweaksCollection_HaulingHandler>();
+				Ceres_Sundries_HaulingHandler haulingHandler = The.Player?.RequirePart<Ceres_Sundries_HaulingHandler>();
 				if (haulingHandler != null && haulingHandler.IsMyActivatedAbilityToggledOn(haulingHandler.ActivatedAbility))
 					haulingHandler.ToggleMyActivatedAbility(haulingHandler.ActivatedAbility, Silent: true, SetState: false);
 			}
-			else if (The.Player != null && The.Player.HasPart<Ava_UnnamedTweaksCollection_HaulingHandler>())
-				The.Player.RemovePart<Ava_UnnamedTweaksCollection_HaulingHandler>();
+			else if (The.Player != null && The.Player.HasPart<Ceres_Sundries_HaulingHandler>())
+				The.Player.RemovePart<Ceres_Sundries_HaulingHandler>();
 		}
 	}
 
@@ -27,7 +28,7 @@ namespace Ava.UnnamedTweaksCollection.Scripts
 		public void mutate(GameObject player)
 		{
 			if (Helpers.GetTweakSetting(Tweaks.EnableItemHauling) != "Disabled")
-				player.AddPart<Ava_UnnamedTweaksCollection_HaulingHandler>();
+				player.AddPart<Ceres_Sundries_HaulingHandler>();
 		}
 	}
 }

@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<conversations>
+	<conversation ID="Otho" Load="Merge">
+		<node ID="BeginCallToArms" Load="Merge">
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_1">You need to get everyone to safety, Otho.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_1">
+			<text>
+				No.
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_2">I wasn't asking. Get everyone to safety.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Very well.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_2">
+			<text>
+				I said no, =factionaddress:Barathrumites=. Do not forget your place. This is our home and we-
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_3">What's the worst that happens? If I die, you can fight instead.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Fine. Do what you will.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_3">
+			<text>
+				The worst that happens is we lose everything we've fought for! And you ask us to hide like vermin instead of defending our home?
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_4">Listen, Otho. I don't doubt your capabilities, but...</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_4">
+			<text>
+				{{emote|*Otho listens.*}}
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_5">None of you are fighters. But the Templar were raised for this. They'll tear you apart.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_5">
+			<text>
+				{{emote|*Otho listens.*}}
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_6">I beg of you: get below and lock the door behind you. I will defend Grit Gate.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_6">
+			<text>
+				{{emote|*Otho pauses.*}}
+				
+				You ask a great deal of us. You ask us to put our collective hopes and everything we've worked for, everything we've accomplished in your hands.
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_7">I do.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_7">
+			<text>
+				...
+				
+				You're certain about this?
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_Commit">I'm certain. Get to safety, Otho. Please.</choice>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_Cancel">...I don't know.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_Commit">
+			<text>
+				{{emote|*Otho gazes at the floor.*}}
+				
+				...very well.
+				
+				Good luck.
+			</text>
+			<choice GotoID="End" Execute="XRL.World.Parts.Ceres_Sundries_BarathrumiteShelter:HitTheBricks" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Thank you. I'll need it.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_Cancel">
+			<text>
+				Make your decision, =name=! We have no time for hesitation.
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_Commit">I will defend Grit Gate alone.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">We will defend Grit Gate together.</choice>
+		</node>
+	</conversation>
+	
+	<!--
+		Unfortunately, due to the base game structuring the intercom conversation completely separately, we need to copy-paste the other conversation above
+		Some minor text differences are present, since this isn't a face-to-face conversation
+	-->
+	<conversation ID="Gritgate Mainframe Intercom" Load="Merge">
+		<node ID="BeginCallToArms" Load="Merge">
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_1">You need to get everyone to safety, Otho.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_1">
+			<text>
+				No.
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_2">I wasn't asking. Get everyone to safety.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Very well.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_2">
+			<text>
+				I said no, =factionaddress:Barathrumites=. Do not forget your place. This is our home and we-
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_3">What's the worst that happens? If I die, you can fight instead.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Fine. Do what you will.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_3">
+			<text>
+				The worst that happens is we lose everything we've fought for! And you ask us to hide like vermin instead of defending our home?
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_4">Listen, Otho. I don't doubt your capabilities, but...</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_4">
+			<text>
+				{{emote|*The intercom is silent.*}}
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_5">None of you are fighters. But the Templar were raised for this. They'll tear you apart.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_5">
+			<text>
+				{{emote|*The intercom is silent.*}}
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_6">I beg of you: get below and lock the door behind you. I will defend Grit Gate.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_6">
+			<text>
+				{{emote|*The intercom is silent.*}}
+
+				You ask a great deal of us. You ask us to put our collective hopes and everything we've worked for, everything we've accomplished in your hands.
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_7">I do.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_7">
+			<text>
+				...
+
+				You're certain about this?
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_Commit">I'm certain. Get to safety, Otho. Please.</choice>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_Cancel">...I don't know.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_Commit">
+			<text>
+				{{emote|*Otho's tone is defeated.*}}
+
+				...very well.
+
+				Good luck.
+			</text>
+			<choice GotoID="End" Execute="XRL.World.Parts.Ceres_Sundries_BarathrumiteShelter:HitTheBricks" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">Thank you. I'll need it.</choice>
+		</node>
+		<node ID="Ceres_Sundries_BarathrumitesHide_Cancel">
+			<text>
+				Make your decision, =name=! We have no time for hesitation.
+			</text>
+			<choice GotoID="Ceres_Sundries_BarathrumitesHide_Commit">I will defend Grit Gate alone.</choice>
+			<choice GotoID="End" CompleteQuestStep="Grave Thoughts~Speak to Otho" StartQuest="A Call to Arms">We will defend Grit Gate together.</choice>
+		</node>
+	</conversation>
+</conversations>

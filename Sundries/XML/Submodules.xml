@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<submodules>
+	<submodule Path="BarathrumitesShelter">
+		<optiontoggle ID="Ceres_Sundries_EnableBarathrumitesShelter" />
+	</submodule>
+</submodules>

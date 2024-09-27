@@ -8,13 +8,13 @@ using XRL.World.WorldBuilders;
 namespace XRL.World.Parts
 {
 	/// <summary>
-	/// This is attached to all of the core Barathrumites in Grit Gate if you tell Otho to get to safety.
-	/// It extremely aggressively forces their AI to drop everything they're doing and go to a random cell in the study.
-	/// To help make sure they don't get stuck, they only walk on the first z-level; once they're in the study they will teleport directly to their chosen spot.
-	/// <br/><br/>
-	/// After the quest is done, each creature will this part will teleport to the closest reachable cell to the upstairs staircase, at which point the part will be removed.
+	/// <para>This is attached to all of the core Barathrumites in Grit Gate if you tell Otho to get to safety.
+	/// It <b>aggressively</b> forces their AI to drop everything they're doing and go to a random cell in the study.
+	/// To help make sure they don't get stuck, they only walk on the first z-level; once they're in the study they will teleport directly to their chosen spot.</para>
+	///
+	/// <para>After the quest is done, each creature will this part will teleport to the closest reachable cell to the upstairs staircase, at which point the part will be removed.</para>
 	/// </summary>
-	public class Ava_UnnamedTweaksCollection_BarathrumiteShelter : IPart
+	public class Ceres_Sundries_BarathrumiteShelter : IPart
 	{
 		/// <summary>
 		/// A randomly chosen <see cref="Cell"/> in Barathrum's study that this part's parent object will attempt to aggressively move to.
@@ -40,27 +40,19 @@ namespace XRL.World.Parts
 				(o.GetBlueprint().Inherits == "Barathrumite" || o.Blueprint == "Shem -1")))
 			{
 
-				gameObject.pBrain.Goals.Clear();
-				gameObject.AddPart<Ava_UnnamedTweaksCollection_BarathrumiteShelter>().GetToSafety();
+				gameObject.Brain.Goals.Clear();
+				gameObject.AddPart<Ceres_Sundries_BarathrumiteShelter>().GetToSafety();
 			}
 		}
 
 		public override bool WantEvent(int ID, int cascade)
 		{
-			return base.WantEvent(ID, cascade) || ID == AIBoredEvent.ID || ID == GeneralAmnestyEvent.ID;
+			return base.WantEvent(ID, cascade) || ID == PooledEvent<AIBoredEvent>.ID || ID == SingletonEvent<GeneralAmnestyEvent>.ID;
 		}
 
 		public override bool HandleEvent(AIBoredEvent E)
 		{
 			return false;
-		}
-
-		public override bool HandleEvent(GeneralAmnestyEvent E)
-		{
-			ParentObject.TeleportTo(ParentObject.CurrentZone.GetZoneFromDirection("U").GetCell(25, 21).getClosestPassableCell(), leaveVerb: string.Empty, arriveVerb: string.Empty);
-			ParentObject.pBrain.Goals.Clear();
-			ParentObject.RemovePart(this);
-			return base.HandleEvent(E);
 		}
 
 		public override bool WantTurnTick()
@@ -74,7 +66,7 @@ namespace XRL.World.Parts
 			{
 				if (ParentObject.CurrentZone == SafePlace.ParentZone)
 					TeleportToSafeSpot();
-				else if (!ParentObject.pBrain.HasGoal(nameof(MoveTo)))
+				else if (!ParentObject.Brain.HasGoal(nameof(MoveTo)))
 					GetToSafety();
 			}
 		}
@@ -100,7 +92,7 @@ namespace XRL.World.Parts
 					break;
 				}
 			}
-			ParentObject.pBrain.PushGoal(new MoveTo(SafePlace, true, true, global: true));
+			ParentObject.Brain.PushGoal(new MoveTo(SafePlace, true, true, global: true));
 		}
 
 		/// <summary>
@@ -129,14 +121,26 @@ namespace XRL.World.Parts
 			else
 			{
 				ParentObject.TeleportTo(SafePlace);
-				ParentObject.pBrain.PushGoal(new Guard());
+				ParentObject.Brain.PushGoal(new Guard());
 			}
 		}
 
-		public override void Register(GameObject Object)
+		/// <summary>
+		/// Moves the parent object directly above the study's staircase, then removes this part.
+		/// </summary>
+		internal void RemoveSelf()
 		{
-			Object.RegisterPartEvent(this, "CheckZoneSuspend");
-			base.Register(Object);
+			if (ParentObject.GetPropertyOrTag("ReturnToGritGateAfterAttack").IsNullOrEmpty())
+			{
+				ParentObject.TeleportTo(ParentObject.CurrentZone.GetZoneFromDirection("U").GetCell(25, 21).getClosestPassableCell(), leaveVerb: string.Empty, arriveVerb: string.Empty);
+				ParentObject.Brain.Goals.Clear();
+			}
+			ParentObject.RemovePart(this);
+		}
+
+		public override void Register(GameObject Object, IEventRegistrar Registrar)
+		{
+			Registrar.Register("CheckZoneSuspend");
 		}
 
 		public override bool FireEvent(Event E)

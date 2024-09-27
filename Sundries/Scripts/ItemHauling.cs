@@ -1,4 +1,4 @@
-﻿using Ava.UnnamedTweaksCollection.Scripts;
+﻿using Ceres.Sundries.Scripts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +9,15 @@ using XRL.World.Capabilities;
 namespace XRL.World.Parts
 {
 	/// <summary>
-	/// This class is used to handle the logic of the item hauling system. The part itself is added and removed from the player in <see cref="UnnamedTweaksCollection.Scripts.LoadGameHandler"/> and <see cref="UnnamedTweaksCollection.Scripts.NewCharacterHandler"/>.
+	/// This class is used to handle the logic of the item hauling system. The part itself is added and removed from the player in <see cref="LoadGameHandler"/> and <see cref="NewCharacterHandler"/>.
 	/// </summary>
 	[Serializable]
-	public class Ava_UnnamedTweaksCollection_HaulingHandler : IPart
+	public class Ceres_Sundries_HaulingHandler : IPlayerPart
 	{
 		/// <summary>
 		/// The string command used to toggle hauling. Should correspond to the key in Abilities.xml.
 		/// </summary>
-		public static readonly string ItemHaulCommand = "Ava_UnnamedTweaksCollection_ToggleHaul";
+		public static readonly string ItemHaulCommand = "Ceres_Sundries_ToggleHaul";
 
 		/// <summary>
 		/// Wrapper that checks if <see cref="ActivatedAbility"/> exists and is toggled on.
@@ -39,6 +39,16 @@ namespace XRL.World.Parts
 		/// otherwise, it will only be populated once, when hauling starts.
 		/// </summary>
 		private List<GameObject> ToHaul = new List<GameObject>();
+
+		public override void Write(GameObject Basis, SerializationWriter Writer)
+		{
+			Writer.WriteNamedFields(this, GetType());
+		}
+
+		public override void Read(GameObject Basis, SerializationReader Reader)
+		{
+			Reader.ReadNamedFields(this, GetType());
+		}
 
 		public override void Attach()
 		{
