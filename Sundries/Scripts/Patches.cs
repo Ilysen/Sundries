@@ -30,7 +30,7 @@ namespace Ceres.Sundries.Scripts.Patches
 	{
 		#region Block auto-collection of decorations
 		/// <summary>
-		/// As <see cref="ShouldTakeAllPatch(GameObject, ref bool)"/>, but for autoget instead.
+		/// As <c><see cref="ShouldTakeAllPatch(GameObject, ref bool)"/></c>, but for autoget instead.
 		/// </summary>
 		[HarmonyPostfix]
 		[HarmonyPatch(typeof(GameObject), nameof(GameObject.CanAutoget))]
@@ -42,7 +42,7 @@ namespace Ceres.Sundries.Scripts.Patches
 		}
 
 		/// <summary>
-		/// Prevents decorations (metal folding chair, plastic tree) from being considered scrap based on the setting of <see cref="Tweaks.DontTakeYurlsTreeItMakesThemSad"/>.
+		/// Prevents decorations (metal folding chair, plastic tree) from being considered scrap based on the setting of <c><see cref="Tweaks.DontTakeYurlsTreeItMakesThemSad"/></c>.
 		/// </summary>
 		[HarmonyPostfix]
 		[HarmonyPatch(typeof(Tinkering_Disassemble), nameof(Tinkering_Disassemble.ConsiderScrap))]
@@ -193,23 +193,6 @@ namespace Ceres.Sundries.Scripts.Patches
 					bs.TeleportToSafeSpot();
 			}
 		}
-
-
-		/// <summary>
-		/// After A Call to Arms ends, moves all sheltering Barathrumites back into the main z-level.
-		/// This could probably be on an event handler on the part itsef, but at the moment it's 3 AM and I'm too tired to figure out
-		/// how to listen for a <see cref="GeneralAmnestyEvent"/> from a different zone. Oh well :p
-		/// </summary>
-		[HarmonyPrefix]
-		[HarmonyPatch(typeof(ScriptCallToArms), nameof(ScriptCallToArms.everyoneReturnHome))]
-		static void ScriptCallToArms_EveryoneReturnHomePatch(ScriptCallToArms __instance)
-		{
-			foreach (GameObject go in __instance.ParentZone.GetZoneFromDirection("D").FindObjectsWithPart(nameof(Ceres_Sundries_BarathrumiteShelter)))
-			{
-				Ceres_Sundries_BarathrumiteShelter bs = go.GetPart<Ceres_Sundries_BarathrumiteShelter>();
-				bs.RemoveSelf();
-			}
-		}
 		#endregion
 
 		#region Feature: Mass psychometry
@@ -259,7 +242,7 @@ namespace Ceres.Sundries.Scripts.Patches
 	{
 		/// <summary>
 		/// This value should always be exactly equal to the text shown at the end of a failed proselytize.
-		/// To make sure this is correct, use a decompiler and check <see cref="Persuasion_Proselytize.Proselytize(MentalAttackEvent)"/>.
+		/// To make sure this is correct, use a decompiler and check <c><see cref="Persuasion_Proselytize.Proselytize(MentalAttackEvent)"/></c>.
 		/// </summary>
 		public static readonly string UNCONVINCED_TEXT = " unconvinced by your pleas.";
 

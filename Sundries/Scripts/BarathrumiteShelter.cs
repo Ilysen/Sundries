@@ -4,31 +4,34 @@ using XRL.Messages;
 using XRL.UI;
 using XRL.World.AI.GoalHandlers;
 using XRL.World.WorldBuilders;
+using XRL.World.ZoneParts;
 
 namespace XRL.World.Parts
 {
 	/// <summary>
 	/// <para>This is attached to all of the core Barathrumites in Grit Gate if you tell Otho to get to safety.
 	/// It <b>aggressively</b> forces their AI to drop everything they're doing and go to a random cell in the study.
-	/// To help make sure they don't get stuck, they only walk on the first z-level; once they're in the study they will teleport directly to their chosen spot.</para>
+	/// To help make sure they don't get stuck, they will teleport directly to their chosen spot once they're downstairs,
+	/// meaning that the rest of the Barathrumites can go past them without getting stick.</para>
 	///
-	/// <para>After the quest is done, each creature will this part will teleport to the closest reachable cell to the upstairs staircase, at which point the part will be removed.</para>
+	/// <para>After the quest is done, each creature will this part will teleport to the closest reachable cell to the upstairs staircase,
+	/// at which point the part will be removed. <c><see cref="Ceres_Sundries_BarathrumiteShelterCoordinator"/></c> handles this process.</para>
 	/// </summary>
 	public class Ceres_Sundries_BarathrumiteShelter : IPart
 	{
 		/// <summary>
-		/// A randomly chosen <see cref="Cell"/> in Barathrum's study that this part's parent object will attempt to aggressively move to.
+		/// A randomly chosen <c><see cref="Cell"/></c> in Barathrum's study that this part's parent object will attempt to aggressively move to.
 		/// </summary>
 		public Cell SafePlace;
 
 		/// <summary>
-		/// A list of <see cref="Cell"/>s that can be used as valid <see cref="SafePlace"/> destinations.
+		/// A list of <c><see cref="Cell"/></c> objects that can be used as valid <c><see cref="SafePlace"/> destinations.
 		/// If something picks this, we remove it from the list to ensure that two creatures don't try to pick the same cell.
 		/// </summary>
-		public static List<Cell> ValidCells = new List<Cell>();
+		public static List<Cell> ValidCells = new();
 
 		/// <summary>
-		/// This is the method called from Otho's conversation. It adds this part to every core Barathrumite in Grit gate as well as populating <see cref="ValidCells"/>.
+		/// This is the method called from Otho's conversation. It adds this part to every core Barathrumite in Grit gate as well as populating <c><see cref="ValidCells"/></c>.
 		/// </summary>
 		public static void HitTheBricks()
 		{
@@ -43,22 +46,49 @@ namespace XRL.World.Parts
 				gameObject.Brain.Goals.Clear();
 				gameObject.AddPart<Ceres_Sundries_BarathrumiteShelter>().GetToSafety();
 			}
+			gritGateZone.AddPart<Ceres_Sundries_BarathrumiteShelterCoordinator>();
+		}
+
+		/// <summary>
+		/// Teleports our parent object to their current safe place and sets them to guard it.
+		/// We use this once we've entered the study to prevent pathfinding from getting stuck.
+		/// </summary>
+		internal void TeleportToSafeSpot()
+		{
+			if (SafePlace == null)
+				FindSafePlace();
+			if (SafePlace == null)
+				Popup.Show($"{ParentObject} failed to find any valid safe spots!!! Report this to the mod author!!!");
+			else
+			{
+				ParentObject.TeleportTo(SafePlace);
+				ParentObject.Brain.PushGoal(new Guard());
+			}
+		}
+
+		/// <summary>
+		/// Causes the owner of this part to teleport back to the main Grit Gate tile, then removes the part itself.
+		/// </summary>
+		internal void AllClear()
+		{
+			// Make sure that Otho and Q Girl's unique behaviors after A Call to Arms still work as they should
+			if (ParentObject.GetPropertyOrTag("ReturnToGritGateAfterAttack").IsNullOrEmpty())
+			{
+				ParentObject.TeleportTo(ParentObject.CurrentZone.GetZoneFromDirection("U").GetCell(25, 21).getClosestPassableCell(), leaveVerb: string.Empty, arriveVerb: string.Empty);
+				ParentObject.Brain.Goals.Clear();
+			}
+			ParentObject.RemovePart(this);
 		}
 
 		public override bool WantEvent(int ID, int cascade)
 		{
-			return base.WantEvent(ID, cascade) || ID == PooledEvent<AIBoredEvent>.ID || ID == SingletonEvent<GeneralAmnestyEvent>.ID;
+			return base.WantEvent(ID, cascade) || ID == AIBoredEvent.ID;
 		}
 
-		public override bool HandleEvent(AIBoredEvent E)
-		{
-			return false;
-		}
+		// Prevents the Barathrumites' AI from having them wander around randomly when they should be running for their lives
+		public override bool HandleEvent(AIBoredEvent E) => false;
 
-		public override bool WantTurnTick()
-		{
-			return true;
-		}
+		public override bool WantTurnTick() => true;
 
 		public override void TurnTick(long TurnNumber)
 		{
@@ -96,7 +126,7 @@ namespace XRL.World.Parts
 		}
 
 		/// <summary>
-		/// Fetches a random element from <see cref="ValidCells"/>. If we find one, it becomes our new destination cell, and is removed from the list.
+		/// Fetches a random element from <c><see cref="ValidCells"/></c>. If we find one, it becomes our new destination cell, and is removed from the list.
 		/// </summary>
 		private void FindSafePlace()
 		{
@@ -106,46 +136,6 @@ namespace XRL.World.Parts
 				SafePlace = destination;
 				ValidCells.Remove(destination);
 			}
-		}
-
-		/// <summary>
-		/// Teleports our parent object to their current safe place and sets them to guard it.
-		/// We use this once we've entered the study to prevent pathfinding from getting stuck.
-		/// </summary>
-		internal void TeleportToSafeSpot()
-		{
-			if (SafePlace == null)
-				FindSafePlace();
-			if (SafePlace == null)
-				Popup.Show($"{ParentObject} failed to find any valid safe spots!!! Report this to the mod author!!!");
-			else
-			{
-				ParentObject.TeleportTo(SafePlace);
-				ParentObject.Brain.PushGoal(new Guard());
-			}
-		}
-
-		/// <summary>
-		/// Moves the parent object directly above the study's staircase, then removes this part.
-		/// </summary>
-		internal void RemoveSelf()
-		{
-			if (ParentObject.GetPropertyOrTag("ReturnToGritGateAfterAttack").IsNullOrEmpty())
-			{
-				ParentObject.TeleportTo(ParentObject.CurrentZone.GetZoneFromDirection("U").GetCell(25, 21).getClosestPassableCell(), leaveVerb: string.Empty, arriveVerb: string.Empty);
-				ParentObject.Brain.Goals.Clear();
-			}
-			ParentObject.RemovePart(this);
-		}
-
-		public override void Register(GameObject Object, IEventRegistrar Registrar)
-		{
-			Registrar.Register("CheckZoneSuspend");
-		}
-
-		public override bool FireEvent(Event E)
-		{
-			return !(E.ID == "CheckZoneSuspend") && base.FireEvent(E);
 		}
 	}
 }

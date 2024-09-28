@@ -9,7 +9,7 @@ using XRL.World.Capabilities;
 namespace XRL.World.Parts
 {
 	/// <summary>
-	/// This class is used to handle the logic of the item hauling system. The part itself is added and removed from the player in <see cref="LoadGameHandler"/> and <see cref="NewCharacterHandler"/>.
+	/// This class is used to handle the logic of the item hauling system. The part itself is added and removed from the player in <c><see cref="LoadGameHandler"/></c> and <c><see cref="NewCharacterHandler"/></c>.
 	/// </summary>
 	[Serializable]
 	public class Ceres_Sundries_HaulingHandler : IPlayerPart
@@ -20,25 +20,25 @@ namespace XRL.World.Parts
 		public static readonly string ItemHaulCommand = "Ceres_Sundries_ToggleHaul";
 
 		/// <summary>
-		/// Wrapper that checks if <see cref="ActivatedAbility"/> exists and is toggled on.
+		/// Wrapper that checks if <c><see cref="ActivatedAbility"/></c> exists and is toggled on.
 		/// </summary>
 		private bool IsHauling => IsMyActivatedAbilityToggledOn(ActivatedAbility, ParentObject);
 
 		/// <summary>
-		/// The <see cref="Guid"/> of the active ability that's used to keep track of 
+		/// The <c><see cref="Guid"/></c> of the active ability that's used to keep track of 
 		/// </summary>
 		public Guid ActivatedAbility;
 
 		/// <summary>
-		/// Returns whether or not a given <see cref="GameObject"/> can be moved by the hauling system.
+		/// Returns whether or not a given <c><see cref="GameObject"/></c> can be moved by the hauling system.
 		/// </summary>
 		private bool CanHaul(GameObject go) => go.IsTakeable() && go.IsValid() && !go.IsInGraveyard() && !go.IsOwned() && go.InInventory == null;
 
 		/// <summary>
-		/// A cached list of <see cref="GameObject"/>s that we're hauling. If <see cref="Tweaks.EnableItemHauling"/> is set to <c>All</c>, this will be updated every turn;
+		/// A cached list of <c><see cref="GameObject"/></c> that we're hauling. If <c><see cref="Tweaks.EnableItemHauling"/></c> is set to <c>All</c>, this will be updated every turn;
 		/// otherwise, it will only be populated once, when hauling starts.
 		/// </summary>
-		private List<GameObject> ToHaul = new List<GameObject>();
+		private List<GameObject> ToHaul = new();
 
 		public override void Write(GameObject Basis, SerializationWriter Writer)
 		{

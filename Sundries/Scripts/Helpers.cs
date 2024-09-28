@@ -5,6 +5,7 @@ using XRL.Wish;
 using System.Linq;
 using XRL.World.Parts;
 using XRL.Messages;
+using XRL.World.ZoneParts;
 
 namespace Ceres.Sundries.Scripts
 {
@@ -12,7 +13,7 @@ namespace Ceres.Sundries.Scripts
 	public class Helpers
 	{
 		/// <summary>
-		/// Returns whether or not the given <see cref="Tweaks"/> entry is enabled.
+		/// Returns whether or not the given <c><see cref="Tweaks"/></c> entry is enabled.
 		/// This only applies for checkbox tweaks.
 		/// </summary>
 		public static bool IsTweakEnabled(Tweaks tweakType) => GetTweakSetting(tweakType).EqualsNoCase("Yes");
@@ -23,7 +24,7 @@ namespace Ceres.Sundries.Scripts
 		public static string GetTweakSetting(Tweaks tweakType) => Options.GetOption($"Ceres_Sundries_{tweakType}");
 
 		/// <summary>
-		/// As <see cref="GetTweakSetting(Tweaks)"/>, but outputs the setting as a string as well.
+		/// As <c><see cref="GetTweakSetting(Tweaks)"/></c>, but outputs the setting as a string as well.
 		/// </summary>
 		public static string GetTweakSetting(Tweaks tweakType, out string setting)
 		{
@@ -41,6 +42,24 @@ namespace Ceres.Sundries.Scripts
 					return true;
 			}
 			return false;
+		}
+
+		[WishCommand(Command = "zonetime")]
+		public static void Zones()
+		{
+			foreach (var zone in The.ZoneManager.CachedZones.Values)
+			{
+				MessageQueue.AddPlayerMessage($"Cached zone: {zone.DisplayName} ({zone.ResolvedLocation}), {zone.GetObjectsWithPart(nameof(Ceres_Sundries_BarathrumiteShelter)).Count} object(s) with shelter part");
+			}
+		}
+
+		[WishCommand(Command = "droptemplar")]
+		public static void DropTemplar()
+		{
+			ScriptCallToArms scta = The.ActiveZone.GetPart<ScriptCallToArms>();
+			scta.n = 249;
+			The.Player.PassTurn();
+			MessageQueue.AddPlayerMessage("Templar have dropped.");
 		}
 
 		[WishCommand(Command = "templarbgone")]
