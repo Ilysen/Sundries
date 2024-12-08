@@ -75,7 +75,7 @@
 		</helptext>
 	</option>
 	<option ID="Ceres_Sundries_EnableItemHauling"
-		DisplayText="Feature: Item hauling" Category="Sundries"
+		DisplayText="Feature: Item hauling (EXPERIMENTAL)" Category="Sundries"
 		 Type="Combo" Values="Disabled,Cached,All" Default="Disabled">
 		<helptext>
 			Implements a toggled ability that allows you to {{rules|drag things along the ground without picking them up}}, although doing so {{rules|takes a lot of time}}. Directly inspired by the feature of the same name from Cataclysm: Dark Days Ahead.

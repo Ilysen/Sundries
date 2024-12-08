@@ -90,7 +90,7 @@ namespace XRL.World.Parts
 
 		public override bool WantTurnTick() => true;
 
-		public override void TurnTick(long TurnNumber)
+		public override void TurnTick(long TimeTick, int Amount)
 		{
 			if (ParentObject.CurrentCell != SafePlace)
 			{

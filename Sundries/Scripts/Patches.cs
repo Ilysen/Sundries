@@ -154,10 +154,10 @@ namespace Ceres.Sundries.Scripts.Patches
 		/// </summary>
 		[HarmonyPostfix]
 		[HarmonyPatch(typeof(CookingRecipe), nameof(CookingRecipe.GenerateRecipeName))]
-		static void CookingRecipe_GenerateRecipeNamePatch(string chef, ref string __result)
+		static void CookingRecipe_GenerateRecipeNamePatch(List<string> ingredients, List<string> liquids, string dishNames, ref string __result, ref CookingRecipe __instance)
 		{
 			// Player might be null here if the game is still setting up, which can cause cookbooks on the starting map to fail to generate if we don't check for it
-			if (The.Player == null || chef != The.Player.BaseDisplayName || !Helpers.IsTweakEnabled(Tweaks.NameCarbideChefRecipes))
+			if (The.Player == null || __instance.ChefName != The.Player.BaseDisplayName || !Helpers.IsTweakEnabled(Tweaks.NameCarbideChefRecipes))
 				return;
 			Start:
 			string newName = Popup.AskString("Name your recipe? Enter nothing to choose randomly instead.");
