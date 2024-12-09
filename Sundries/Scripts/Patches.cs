@@ -14,6 +14,7 @@ using XRL.World.Parts;
 using XRL.World.Parts.Mutation;
 using XRL.World.Parts.Skill;
 using XRL.World.Skills.Cooking;
+using XRL.World.Tinkering;
 using XRL.World.ZoneParts;
 
 namespace Ceres.Sundries.Scripts.Patches
@@ -153,11 +154,12 @@ namespace Ceres.Sundries.Scripts.Patches
 		/// Postfixes logic allowing the player to choose names for their own Carbide Chef recipes.
 		/// </summary>
 		[HarmonyPostfix]
-		[HarmonyPatch(typeof(CookingRecipe), nameof(CookingRecipe.GenerateRecipeName))]
-		static void CookingRecipe_GenerateRecipeNamePatch(List<string> ingredients, List<string> liquids, string dishNames, ref string __result, ref CookingRecipe __instance)
+		[HarmonyPatch(typeof(CookingRecipe), nameof(CookingRecipe.FromIngredients))]
+		[HarmonyPatch(new Type[] { typeof(List<GameObject>), typeof(ProceduralCookingEffect), typeof(string), typeof(string) })]
+		static void CookingRecipe_GenerateRecipeNamePatch(ref CookingRecipe __result)
 		{
 			// Player might be null here if the game is still setting up, which can cause cookbooks on the starting map to fail to generate if we don't check for it
-			if (The.Player == null || __instance.ChefName != The.Player.BaseDisplayName || !Helpers.IsTweakEnabled(Tweaks.NameCarbideChefRecipes))
+			if (The.Player == null || __result.ChefName != The.Player.BaseDisplayName || !Helpers.IsTweakEnabled(Tweaks.NameCarbideChefRecipes))
 				return;
 			Start:
 			string newName = Popup.AskString("Name your recipe? Enter nothing to choose randomly instead.");
@@ -173,7 +175,12 @@ namespace Ceres.Sundries.Scripts.Patches
 			DialogResult confirmation = Popup.ShowYesNo($"This dish will be named {newName}. Is this what you want?");
 			if (confirmation == DialogResult.No || confirmation == DialogResult.Cancel)
 				goto Start;
-			__result = newName;
+			UnityEngine.Debug.Log(__result.DisplayName);
+			__result.ChefName = null;
+			__result.DisplayName = newName;
+			// The cached display name is private, so we need to use reflection to clear it and ensure that the new name shows correctly
+			FieldInfo pi = __result.GetType().GetField("CachedDisplayName", BindingFlags.NonPublic | BindingFlags.Instance);
+			pi.SetValue(__result, null);
 		}
 		#endregion
 
@@ -214,6 +221,8 @@ namespace Ceres.Sundries.Scripts.Patches
 				else
 				{
 					Dictionary<string, GameObject> validObjs = new();
+					List<GameObject> learned = new();
+					List<GameObject> tooComplex = new();
 					foreach (GameObject go in ply.Inventory.GetObjects().Where(x => x.HasInventoryActionWithCommand(Psychometry.COMMAND_NAME) && x.GetEpistemicStatus() == 2))
 					{
 						if (!validObjs.ContainsKey(go.Blueprint))
@@ -223,8 +232,53 @@ namespace Ceres.Sundries.Scripts.Patches
 						Popup.Show("You don't have any artifacts to perform mass psychometry on.");
 					else if (Popup.ShowYesNo($"Perform mass psychometry on {validObjs.Count} artifact{(validObjs.Count == 1 ? "" : "s")}?") == DialogResult.Yes)
 					{
+						E.Actor.PlayWorldSound("Sounds/Abilities/sfx_ability_mutation_psychometry_activate", 0.5f);
+						E.Actor.PlayWorldOrUISound("sfx_characterMod_tinkerSchematic_learn");
 						foreach (GameObject go in validObjs.Values)
-							InventoryActionEvent.Check(ply, ply, go, Psychometry.COMMAND_NAME);
+						{
+							Examiner e = go.GetPart<Examiner>();
+							TinkerItem t = go.GetPart<TinkerItem>();
+							if (e?.Complexity > __instance.GetLearnableComplexity())
+								tooComplex.Add(go);
+							else
+							{
+								string text = t?.ActiveBlueprint ?? go.Blueprint;
+								__instance.LearnedBlueprints.Add(text);
+								foreach (TinkerData tinkerData in TinkerData.TinkerRecipes)
+								{
+									if (tinkerData.Blueprint == text)
+									{
+										GameObject gameObject = GameObject.CreateSample(tinkerData.Blueprint);
+										gameObject.MakeUnderstood(false);
+										try
+										{
+											tinkerData.DisplayName = gameObject.DisplayNameOnlyDirect;
+											TinkerData.KnownRecipes.Add(tinkerData);
+											learned.Add(go);
+										}
+										finally
+										{
+											gameObject.Obliterate(null, false, null);
+										}
+									}
+								}
+							}
+						}
+
+						string learnedText = string.Empty;
+						foreach (GameObject go in learned)
+							learnedText += go.BaseDisplayName + "\n";
+
+						string tooComplexText = string.Empty;
+						foreach (GameObject go in tooComplex)
+							tooComplexText += go.BaseDisplayName + "\n";
+
+						// gross hack to include an extra line of whitespace if needed
+						if (learnedText != string.Empty && tooComplexText != string.Empty)
+							learnedText = $"{learnedText}\n";
+
+						Popup.Show($"{(learned.Count > 0 ? $"Learned {learned.Count} new recipe{(learned.Count > 1 ? "s" : "")}:\n\n" : string.Empty)}{learnedText}" +
+							$"{(tooComplex.Count > 0 ? $"{tooComplex.Count} recipe{(tooComplex.Count > 1 ? "s were" : " was")} too complex:\n\n{tooComplexText}" : string.Empty)}");
 					}
 				}
 				E.Command = "Ceres_Sundries_PsychometryMenuResolved";
