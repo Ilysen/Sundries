@@ -277,7 +277,7 @@ namespace Ceres.Sundries.Scripts.Patches
 						if (learnedText != string.Empty && tooComplexText != string.Empty)
 							learnedText = $"{learnedText}\n";
 
-						Popup.Show($"{(learned.Count > 0 ? $"Learned {learned.Count} new recipe{(learned.Count > 1 ? "s" : "")}:\n\n" : string.Empty)}{learnedText}" +
+						Popup.Show($"Performed mass psychometry. {(learned.Count > 0 ? $"Learned {learned.Count} new recipe{(learned.Count > 1 ? "s" : "")}:\n\n" : string.Empty)}{learnedText}" +
 							$"{(tooComplex.Count > 0 ? $"{tooComplex.Count} recipe{(tooComplex.Count > 1 ? "s were" : " was")} too complex:\n\n{tooComplexText}" : string.Empty)}");
 					}
 				}

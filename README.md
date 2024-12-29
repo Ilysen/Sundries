@@ -6,6 +6,6 @@ Sundries is licensed under the [GNU General Public License v3](http://www.gnu.or
 
 ## Changelog
 
-### TODO
+### Dec. 28, 2024
 #### Version 1.0
 * Initial release.

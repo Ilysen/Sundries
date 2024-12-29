@@ -1,8 +1,8 @@
 {
     "id": "Ceres_Sundries",
     "title": "Sundries",
-    "description": "Assorted game tweaks for the discerning delver.",
-    "version": "0.1",
+    "description": "Assorted game tweaks for the discerning delver. Requires submodule-management by kernelmethod.",
+    "version": "1.0",
     "author": "Ceres et al.",
     "PreviewImage": "preview.png"
 }
