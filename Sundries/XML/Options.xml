@@ -12,6 +12,9 @@
 	<option ID="Ceres_Sundries_DontTakeTownWater"
 		DisplayText="Block auto-collection of fresh water in towns"
 		Category="Sundries" Type="Checkbox" Default="No"></option>
+	<!--<option ID="Ceres_Sundries_DontAutodigInTowns"
+		DisplayText="Block auto-digging in towns"
+		Category="Sundries" Type="Checkbox" Default="No"></option>-->
 	<option ID="Ceres_Sundries_DontTakeAllJunk"
 		DisplayText="Block junk from Take All"
 		Category="Sundries" Type="Checkbox" Default="No">
@@ -36,10 +39,10 @@
 		</helptext>
 	</option>
 	<option ID="Ceres_Sundries_ShowProselytizeMath"
-		DisplayText="Show math on failed Proselytize attempts"
+		DisplayText="Show math on failed recruitment attempts"
 		Category="Sundries" Type="Checkbox" Default="No">
 		<helptext>
-			While enabled, failing a Proselytize against a creature will tell you the involved math, as well as the roll you need to succeed. If you're mathematically unable to Proselytize the target, it'll show you by how much.
+			While enabled, failing a recruitment against a creature will tell you the involved math, as well as the roll you need to succeed. If you're mathematically unable to convert the target, it'll show you by how much. This feature applies to Proselytize, Rebuke Robot, Beguiling, and love injectors.
 		</helptext>
 	</option>
 	<option ID="Ceres_Sundries_TreatRobotLimbsAsScrap"

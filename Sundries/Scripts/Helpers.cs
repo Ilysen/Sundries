@@ -1,10 +1,13 @@
-﻿using XRL;
-using XRL.UI;
-using XRL.World;
-using XRL.Wish;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using XRL.World.Parts;
+using XRL;
 using XRL.Messages;
+using XRL.UI;
+using XRL.Wish;
+using XRL.World;
+using XRL.World.Effects;
+using XRL.World.Parts;
 using XRL.World.ZoneParts;
 
 namespace Ceres.Sundries.Scripts
@@ -42,6 +45,37 @@ namespace Ceres.Sundries.Scripts
 					return true;
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// Creates a text representation of the formula for the parameters of the provided <c><see cref="MentalAttackEvent"/></c>.
+		/// Dice and magnitude are accounted for automatically. An offset to difficulty from <c><see cref="Beguiled"/></c> and <c><see cref="Proselytized"/></c>
+		/// is assumed, so a conditional modifier to offset this should be passed in <c>FlatMod</c> to avoid that.
+		/// </summary>
+		/// <param name="E">The <c><see cref="MentalAttackEvent"/></c> whose parameters will be used.</param>
+		/// <param name="FlatMod">A flat bonus to the computed attack strength or dice roll. Can be negative.</param>
+		/// <param name="LevelRatio">A multiplier to be used when determining level differences. Can be zero.</param>
+		/// <returns></returns>
+		public static string GetMentalAttackFormulaVisualization(MentalAttackEvent E, int FlatMod = 0, float LevelRatio = 1f)
+		{
+			int atkModifier = E.Attacker.StatMod("Ego", 0) + E.Modifier;
+			Beguiled b = E.Defender.GetEffect<Beguiled>();
+			int defModifier = (E.Defender.HasEffect<Proselytized>() ? 1 : 0) + (E.Defender.HasEffect<Rebuked>() ? 1 : 0) + (b != null ? b.LevelApplied : 0);
+			int levelDifference = Math.Max((int)(E.Defender.Stat("Level", 0) * LevelRatio) - (int)(E.Attacker.Stat("Level", 0) * LevelRatio), 0);
+
+			var difficultyFactors = new List<string>();
+			if (levelDifference != 0)
+				difficultyFactors.Add("{{rules|" + levelDifference + "}} from levels");
+			if (defModifier != 0)
+				difficultyFactors.Add("{{rules|" + defModifier + "}} from existing effects");
+			if (difficultyFactors.Count > 0)
+				difficultyFactors.Insert(0, "{{rules|" + (E.Difficulty - levelDifference - defModifier) + "}} base difficulty");
+
+			string atkDescriptor = string.Empty;
+			int calcMod = atkModifier + FlatMod;
+			if (calcMod != 0)
+				atkDescriptor = calcMod > 1 && E.Dice != string.Empty ? $"{(E.Dice.IsNullOrEmpty() ? "" : "+")}{calcMod}" : calcMod.ToString();
+			return "{{rules|" + (FlatMod != 0 ? E.Dice.Replace(FlatMod.ToString(), atkDescriptor) : E.Dice + atkDescriptor) + "}} vs. {{rules|" + E.Difficulty + "}}" + (difficultyFactors.Count > 0 ? $"; {string.Join(" + ", difficultyFactors)}" : string.Empty);
 		}
 
 		[WishCommand(Command = "zonetime")]
@@ -90,6 +124,7 @@ namespace Ceres.Sundries.Scripts
 		NameCarbideChefRecipes,
 		DontTakeAllJunk,
 		DontTakeTownWater,
+		DontAutodigInTowns,
 		DontTakeYurlsTreeItMakesThemSad,
 		DifferentiateMaxCells,
 		DisableGeomagneticDiscAnimation,

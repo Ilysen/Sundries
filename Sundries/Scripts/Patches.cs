@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Reflection.Emit;
 using XRL;
 using XRL.Language;
+using XRL.Messages;
+using XRL.Rules;
 using XRL.UI;
 using XRL.World;
 using XRL.World.Capabilities;
@@ -52,6 +54,18 @@ namespace Ceres.Sundries.Scripts.Patches
 			if (__result)
 				__result = !Helpers.ShouldBlockFromAutogetAndDisassemble(obj);
 		}
+		#endregion
+
+		#region Block auto-digging in towns
+		// This is a WIP -- the code for autoexploring is very convoluted and patching it is a heck of a headache
+		/*[HarmonyPrefix]
+		[HarmonyPatch(typeof(AutoAct), nameof(AutoAct.TryToMove))]
+		[HarmonyPatch(new Type[] { typeof(GameObject), typeof(Cell), typeof(GameObject), typeof(Cell), typeof(string), typeof(bool), typeof(bool), typeof(bool), typeof(bool) })]
+		static void Autoact_TryToMovePatch(GameObject Actor, ref bool AllowDigging)
+		{
+			if (Actor.IsPlayer() && Helpers.IsTweakEnabled(Tweaks.DontAutodigInTowns) && CheckpointingSystem.IsPlayerInCheckpoint())
+				AllowDigging = false;
+		}*/
 		#endregion
 
 		#region Block auto-collection of fresh water in towns
@@ -287,10 +301,16 @@ namespace Ceres.Sundries.Scripts.Patches
 		#endregion
 	}
 
+	// There is a dilapidated sign here. Ancient runes scrawl across the dilapidated surface
+	// joined by the faded remains of threatening pictograms and ominous warning symbols:
+	//
+	// TRANSPILERS BEYOND THIS POINT
+	#region Show math on failed recruitment attempts
 	/// <summary>
-	/// Contains all the logic required for the 'Show math on failed Proselytize attempts' tweak.
+	/// This method, <c><see cref="BeguilingPatch"/></c>, and <c><see cref="RebukeRobotPatch"/></c>, and <c><see cref="LoveTonicApplicatorPatch"/></c>
+	/// are all largely copies of one another, with some varying logic differences for their specialized handling.
 	/// </summary>
-	#region Show math on failed Proselytize attempts
+	#region Proselytize patch
 	[HarmonyPatch(typeof(Persuasion_Proselytize))]
 	class ProselytizePatch
 	{
@@ -339,35 +359,149 @@ namespace Ceres.Sundries.Scripts.Patches
 			string toReturn = UNCONVINCED_TEXT;
 			if (Helpers.IsTweakEnabled(Tweaks.ShowProselytizeMath))
 			{
-				Beguiled b = E.Defender.GetEffect<Beguiled>();
+				string formulaText = $" ({Helpers.GetMentalAttackFormulaVisualization(E, -6)})";
+
 				int atkModifier = E.Attacker.StatMod("Ego", 0);
+				Beguiled b = E.Defender.GetEffect<Beguiled>();
 				int defModifier = (E.Defender.HasEffect<Proselytized>() ? 1 : 0) + (E.Defender.HasEffect<Rebuked>() ? 1 : 0) + (b != null ? b.LevelApplied : 0);
-				int levelDifference = Math.Max(E.Defender.Stat("Level", 0) - E.Attacker.Stat("Level", 0), 0);
 
-				var difficultyFactors = new List<string>();
-				if (levelDifference != 0)
-					difficultyFactors.Add("{{rules|" + levelDifference + "}} levels higher than you");
-				if (defModifier != 0)
-					difficultyFactors.Add("{{rules|" + defModifier + "}} from existing effects");
-				if (difficultyFactors.Count > 0)
-					difficultyFactors.Insert(0, "{{rules|" + (E.Difficulty - levelDifference - defModifier) + "}} base difficulty");
-
-				string atkDescriptor = string.Empty;
-				int calcMod = atkModifier - 6;
-				if (calcMod != 0)
-					atkDescriptor = calcMod > 1 ? $"+{calcMod}" : calcMod.ToString();
-
-				toReturn += " ({{rules|" + E.Dice.Replace("-6", atkDescriptor) + "}} vs. {{rules|" + E.Difficulty + "}}" + (difficultyFactors.Count > 0 ? $"; {string.Join(" + ", difficultyFactors)})" : ")");
 				if (2 + atkModifier < E.Difficulty + defModifier)
-					toReturn += "\n\n{{R|Impossible by " + ((E.Difficulty + defModifier) - (2 + atkModifier)) + "}}";
+					formulaText += "\n\n{{R|Impossible by " + ((E.Difficulty + defModifier) - (2 + atkModifier)) + "}}";
 				else
 				{
 					int requiredRoll = 8 - ((2 + atkModifier) - (E.Difficulty + defModifier));
-					toReturn += "\n\n{{G|Succeeds on a d8 roll of " + requiredRoll + (requiredRoll == 8 ? "" : " or higher") + "}}";
+					formulaText += "\n\n{{G|Succeeds on a d8 roll of " + requiredRoll + (requiredRoll == 8 ? "" : " or higher") + "}}";
 				}
+				toReturn += formulaText;
 			}
 			return toReturn;
 		}
 	}
+	#endregion
+
+	/// <summary>
+	/// <para>As <c><see cref="ProselytizePatch"/></c>, but for Rebuke Robot. See there for further documentation; this method is largely a copy.</para>
+	/// <para>The primary difference is that Rebuke Robot requires a specific number of penetrations, so we need to do a gross hack to calculate an average
+	/// to display it for mechanical clarity.</para>
+	/// </summary>
+	#region Rebuke Robot patch
+	[HarmonyPatch(typeof(Persuasion_RebukeRobot))]
+	class RebukeRobotPatch
+	{
+		public static readonly string ZERO_PEN_TEXT = "Your argument does not compute.";
+
+		public static readonly string INSUFFICIENT_PEN_TEXT = "away disinterestedly";
+
+		[HarmonyTranspiler]
+		[HarmonyPatch(nameof(Persuasion_RebukeRobot.Rebuke))]
+		[HarmonyPatch(new Type[] { typeof(MentalAttackEvent) })]
+		public static IEnumerable<CodeInstruction> Persuasion_RebukeRobotTranspiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var codes = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < codes.Count; i++)
+			{
+
+				if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s && (s.Contains(ZERO_PEN_TEXT) || s.Contains(INSUFFICIENT_PEN_TEXT)))
+				{
+					codes[i] = CodeInstruction.Call(typeof(RebukeRobotPatch), nameof(AssembleText));
+					codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
+				}
+			}
+			return codes.AsEnumerable();
+		}
+
+		private static string AssembleText(MentalAttackEvent E)
+		{
+			string toReturn = E.Penetrations == 0 ? ZERO_PEN_TEXT : INSUFFICIENT_PEN_TEXT;
+			if (Helpers.IsTweakEnabled(Tweaks.ShowProselytizeMath))
+			{
+				// """Calculate""" an average by quickly simulating 100 mental attacks and computing the mean
+				// This sucks. Nobody should allow me near a keyboard.
+				List<int> simulatedPens = new();
+				for (int i = 0; i < 100; i++)
+					simulatedPens.Add(Stat.RollDamagePenetrations(E.Difficulty, E.Modifier, E.Modifier));
+
+				MessageQueue.AddPlayerMessage($"Average pens: {Math.Round(simulatedPens.Average(), 3)}");
+				string formulaText = Helpers.GetMentalAttackFormulaVisualization(E, LevelRatio: 0.8f);
+				formulaText += ". Succeeds on {{rules|3 penetrations}}; current average: ~{{rules|" + Math.Round(simulatedPens.Average(), 3) + "}}";
+				toReturn += $" ({formulaText})";
+			}
+			return toReturn;
+		}
+	}
+	#endregion
+
+	/// <summary>
+	/// As <c><see cref="ProselytizePatch"/></c>, but for Beguiling. See there for further documentation; this method is largely a copy.
+	/// </summary>
+	#region Beguile patch
+	[HarmonyPatch(typeof(Beguiling))]
+	class BeguilingPatch
+	{
+		public static readonly string STRING_END_TEXT = ".";
+
+		[HarmonyTranspiler]
+		[HarmonyPatch("Beguile")] // Beguiling.Beguile is private, so we need to define the string manually here
+		public static IEnumerable<CodeInstruction> Beguiling_BeguileTranspiler(IEnumerable<CodeInstruction> instructions)
+		{
+			var codes = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < codes.Count; i++)
+			{
+				if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s && s.Contains(STRING_END_TEXT))
+				{
+					codes[i] = CodeInstruction.Call(typeof(BeguilingPatch), nameof(AssembleText));
+					codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
+				}
+			}
+			return codes.AsEnumerable();
+		}
+
+		private static string AssembleText(MentalAttackEvent E)
+		{
+			string toReturn = STRING_END_TEXT;
+			if (Helpers.IsTweakEnabled(Tweaks.ShowProselytizeMath))
+				toReturn += $" ({Helpers.GetMentalAttackFormulaVisualization(E, E.Defender.HasEffect<Proselytized>() || E.Defender.HasEffect<Rebuked>() ? -1 : 0)})";
+			return toReturn;
+		}
+	}
+	#endregion
+
+	/// <summary>
+	/// As <c><see cref="ProselytizePatch"/></c>, but for love injectors. Unlike the other ones, this one has its own logic, mostly!
+	/// </summary>
+	#region Love injector patch
+	[HarmonyPatch(typeof(LoveTonicApplicator))]
+	class LoveTonicApplicatorPatch
+	{
+		public static readonly string STRING_END_TEXT = " the love tonic with no effect.";
+
+		[HarmonyTranspiler]
+		[HarmonyPatch(nameof(LoveTonicApplicator.FireEvent))]
+		public static IEnumerable<CodeInstruction> LoveTonicApplicator_FireEventPatch(IEnumerable<CodeInstruction> instructions)
+		{
+			var codes = new List<CodeInstruction>(instructions);
+			for (int i = 0; i < codes.Count; i++)
+			{
+				if (codes[i].opcode == OpCodes.Ldstr && codes[i].operand is string s && s.Contains(STRING_END_TEXT))
+				{
+					codes[i] = CodeInstruction.Call(typeof(LoveTonicApplicatorPatch), nameof(AssembleText));
+					codes.Insert(i, new CodeInstruction(OpCodes.Ldarg_1));
+				}
+			}
+			return codes.AsEnumerable();
+		}
+
+		private static string AssembleText(Event E)
+		{
+			GameObject Attacker = E.GetGameObjectParameter("Attacker");
+			GameObject Defender = E.GetGameObjectParameter("Subject");
+			MessageQueue.AddPlayerMessage($"assemble text (attacker {Attacker.DisplayName}, defender {Defender.DisplayName}");
+			string toReturn = STRING_END_TEXT;
+			if (Helpers.IsTweakEnabled(Tweaks.ShowProselytizeMath))
+				toReturn += " ({{rules|" + (95 + Attacker.Stat("Level") - Defender.Stat("Level") - Defender.GetIntProperty("LoveTonicResistance")) + "%}} success chance)";
+			return toReturn;
+		}
+	}
+	#endregion
 	#endregion
 }
