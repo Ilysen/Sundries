@@ -6,6 +6,10 @@ Sundries is licensed under the [GNU General Public License v3](http://www.gnu.or
 
 ## Changelog
 
+### May 22, 2025
+#### Version 1.0.2
+* Fixed a freeze bug introduced in game version 1.04.
+
 ### Jan. 1, 2025
 Happy new year!
 #### Version 1.0.1

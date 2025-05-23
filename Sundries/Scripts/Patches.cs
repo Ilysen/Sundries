@@ -156,9 +156,9 @@ namespace Ceres.Sundries.Scripts.Patches
 			}
 			else if (Helpers.IsTweakEnabled(Tweaks.TreatModdedItemsAsScrap))
 			{
-				MethodInfo dynMethod = typeof(Tinkering_Disassemble).GetMethod("ModProfile", BindingFlags.NonPublic | BindingFlags.Instance);
-				if (dynMethod.Invoke(__instance, new object[] { obj }) is string s && !s.IsNullOrEmpty())
-					__result = __result.Replace(s, "");
+				var modProfile = Tinkering_Disassemble.ModProfile(obj);
+				if (!modProfile.IsNullOrEmpty())
+					__result = __result.Replace(modProfile, "");
 			}
 		}
 		#endregion
